@@ -1,0 +1,18 @@
+# Node
+node_modules/
+
+# Android
+android/app/build/
+android/build/
+android/.gradle/
+android/app/.cxx/
+
+# APK / AAB
+*.apk
+*.aab
+
+# Native libs
+*.so
+
+# Misc
+.DS_Store
