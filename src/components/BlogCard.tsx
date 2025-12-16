@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: 12,
-    color: '#007AFF',
+    color: '#002e6e',
     fontWeight: '600',
   },
   title: {

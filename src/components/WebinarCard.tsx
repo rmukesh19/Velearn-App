@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     paddingTop: 16,
   },
   registerButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#002e6e',
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,

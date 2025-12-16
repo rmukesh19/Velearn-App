@@ -109,26 +109,15 @@ import { Colors } from '../theme/colors';
 
 // Screens
 import SplashScreen from '../screens/SplashScreen';
-import LoginScreen from '../screens/LoginScreen';
 import HomeScreen from '../screens/HomeScreen';
 import LiveClassScreen from '../screens/LiveClassScreen';
 import OptionsScreen from '../screens/OptionsScreen';
 
-const RootStack = createStackNavigator();
-const AuthStackNav = createStackNavigator();
+const MainStack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-/* ───────── AUTH STACK ───────── */
-const AuthStack = () => {
-  return (
-    <AuthStackNav.Navigator screenOptions={{ headerShown: false }}>
-      <AuthStackNav.Screen name="Login" component={LoginScreen} />
-    </AuthStackNav.Navigator>
-  );
-};
-
-/* ───────── TABS ───────── */
-const AppTabs = () => {
+/* ───────── MAIN TABS ───────── */
+const MainTabs = () => {
   const insets = useSafeAreaInsets();
 
   return (
@@ -159,17 +148,21 @@ const AppTabs = () => {
   );
 };
 
-/* ───────── ROOT NAVIGATOR ───────── */
+/* ───────── APP NAVIGATOR ───────── */
 export default function AppNavigator() {
   return (
     <SafeAreaProvider>
       <StatusBar barStyle="dark-content" backgroundColor={Colors.white} />
       <NavigationContainer>
-        <RootStack.Navigator screenOptions={{ headerShown: false }}>
-          <RootStack.Screen name="Splash" component={SplashScreen} />
-          <RootStack.Screen name="AuthStack" component={AuthStack} />
-          <RootStack.Screen name="AppTabs" component={AppTabs} />
-        </RootStack.Navigator>
+        <MainStack.Navigator 
+          screenOptions={{ 
+            headerShown: false,
+            animationEnabled: false // Disable animation for instant transition
+          }}
+        >
+          <MainStack.Screen name="Splash" component={SplashScreen} />
+          <MainStack.Screen name="MainTabs" component={MainTabs} />
+        </MainStack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
   );

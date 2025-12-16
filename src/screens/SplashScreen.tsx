@@ -61,7 +61,8 @@ const SplashScreen = ({ navigation }: any) => {
 
     // Navigate after 3 seconds
     const timer = setTimeout(() => {
-      navigation.replace('AuthStack'); // Navigate to the AuthStack
+      // FIXED: Changed from 'AuthStack' to 'MainTabs'
+      navigation.replace('MainTabs'); // Navigate to the MainTabs
     }, 3000);
 
     return () => clearTimeout(timer);
@@ -142,15 +143,10 @@ const SplashScreen = ({ navigation }: any) => {
             ]}
           >
             <Image
-              source={require('../images/logo/velearn-logo.png')} // Replace with your logo image path
+              source={require('../images/logo/velearn-logo.png')}
               style={styles.logoImage}
               resizeMode="contain"
             />
-            
-            {/* Fallback if image not available */}
-            {/* <View style={styles.logoFallback}>
-              <Text style={styles.logoText}>VL</Text>
-            </View> */}
           </Animated.View>
         </View>
 
@@ -164,8 +160,7 @@ const SplashScreen = ({ navigation }: any) => {
             },
           ]}
         >
-          
-          <Text style={styles.appTagline}>Learn. Code. Succeed.</Text>
+       
           
           {/* Divider */}
           <View style={styles.divider} />
@@ -267,7 +262,7 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     borderRadius: 100,
-    backgroundColor: Colors.primary + '08', // Very light opacity
+    backgroundColor: Colors.primary + '08',
   },
   topLeftAccent: {
     top: -100,

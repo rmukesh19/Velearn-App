@@ -28,27 +28,52 @@ export default function HomeScreen() {
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
 
   const featuredCourses = [
-    { 
-      id: '1', 
-      title: 'Python for Beginners', 
-      description: 'Start your programming journey with Python basics', 
-      type: 'recorded' as const, 
-      thumbnail: 'https://images.unsplash.com/photo-1526379879527-8559ecfcaec7?w=400&h=225&fit=crop' 
-    },
-    { 
-      id: '2', 
-      title: 'Excel Mastery', 
-      description: 'Advanced Excel techniques for professionals', 
-      type: 'recorded' as const, 
-      thumbnail: 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=225&fit=crop' 
-    },
-    { 
-      id: '3', 
-      title: 'Web Development', 
-      description: 'Full stack web development course', 
-      type: 'recorded' as const, 
-      thumbnail: 'https://images.unsplash.com/photo-1627398242454-45a1465c2479?w-400&h=225&fit=crop' 
-    },
+  { 
+    id: '1', 
+    title: 'Python For Beginners', 
+    description: 'Master Python programming from basics to advanced concepts with hands-on projects', 
+    type: 'recorded' as const, 
+    thumbnail: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&h=225&fit=crop',
+    category: 'Inomobile (2.5x3)',
+    level: 'Intermediate',
+    duration: '25hrs',
+   
+  },
+  { 
+    id: '2', 
+    title: 'Web Development Bootcamp', 
+    description: 'Full-stack web development with React, Node.js, and MongoDB', 
+    type: 'recorded' as const, 
+    thumbnail: 'https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=400&h=225&fit=crop',
+    category: 'Web Dev',
+    level: 'Beginner',
+    duration: '40hrs',
+    
+
+  },
+  { 
+    id: '3', 
+    title: 'Data Science Fundamentals', 
+    description: 'Learn data analysis, visualization, and machine learning basics', 
+    type: 'recorded' as const, 
+    thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=225&fit=crop',
+    category: 'Data Science',
+    level: 'Intermediate',
+    duration: '35hrs',
+  
+  
+  },
+  { 
+    id: '4', 
+    title: 'Mobile App Development', 
+    description: 'Build iOS and Android apps with React Native', 
+    type: 'recorded' as const, 
+    thumbnail: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400&h=225&fit=crop',
+    category: 'Mobile Dev',
+    level: 'Advanced',
+    duration: '30hrs',
+    
+  },
   ];
 
   const webinars = [
@@ -174,13 +199,13 @@ export default function HomeScreen() {
           <TouchableOpacity style={styles.exploreCard}>
             <View style={styles.exploreCardContent}>
               <View style={styles.exploreTextContainer}>
-                <Text style={styles.exploreTitle}>Discover 100+ Courses</Text>
+                <Text style={styles.exploreTitle}>Explore Skill</Text>
                 <Text style={styles.exploreDescription}>
-                  Programming, Data Science, Business, and more
+                 Driven course Built around real worldflows and Expert Guidance
                 </Text>
               </View>
               <TouchableOpacity style={styles.exploreButton}>
-                <Text style={styles.exploreButtonText}>Browse All →</Text>
+                <Text style={styles.exploreButtonText}>Explore Courses</Text>
               </TouchableOpacity>
             </View>
           </TouchableOpacity>
@@ -214,16 +239,16 @@ export default function HomeScreen() {
               <View style={styles.referContent}>
                 <Text style={styles.referTitle}>Refer & Earn</Text>
                 <Text style={styles.referDescription}>
-                  Refer 4 friends and earn exciting rewards
+                   Invite friends and enjoy exclusive perks
                 </Text>
                 <TouchableOpacity style={styles.referButton}>
-                  <Text style={styles.referButtonText}>Invite Friends</Text>
+                  <Text style={styles.referButtonText}>Refer Now</Text>
                 </TouchableOpacity>
               </View>
-              <View style={styles.referBadge}>
+              {/* <View style={styles.referBadge}>
                 <Text style={styles.referBadgeText}>₹500</Text>
                 <Text style={styles.referBadgeLabel}>per referral</Text>
-              </View>
+              </View> */}
             </View>
           </TouchableOpacity>
         </View>
@@ -386,41 +411,41 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 16,
     padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
     elevation: 4,
   },
+
   exploreCardContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: 'column',
   },
+
   exploreTextContainer: {
-    flex: 1,
+    marginBottom: 12,
   },
+
   exploreTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: '#212529',
     marginBottom: 4,
   },
+
   exploreDescription: {
     fontSize: 14,
     color: '#6C757D',
-    marginBottom: 16,
   },
+
   exploreButton: {
     backgroundColor: '#002e6e',
-    paddingHorizontal: 20,
     paddingVertical: 12,
+    paddingHorizontal: 20,
     borderRadius: 8,
+    alignSelf: 'flex-start',
   },
+
   exploreButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
     color: 'white',
+    fontWeight: '600',
+    fontSize: 14,
   },
   webinarLink: {
     marginTop: 12,
@@ -429,7 +454,7 @@ const styles = StyleSheet.create({
   linkText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#007AFF',
+    color: '#002e6e',
   },
   referCard: {
     position: 'relative',
