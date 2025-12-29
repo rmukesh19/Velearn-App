@@ -8,7 +8,7 @@ import {
   Image,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { Colors } from '../theme/colors';
+import { Colors } from '../../theme/colors';
 
 // Local Images
 const courseImages = {
@@ -146,7 +146,12 @@ const OnlineCoursesScreen = ({ navigation }: any) => {
                 <View style={styles.categoryBadge}>
                   <Text style={styles.categoryBadgeText}>{course.category}</Text>
                 </View>
-                <Text style={styles.coursePrice}>{course.price}</Text>
+                <View style={styles.footerRight}>
+                  <Text style={styles.coursePrice}>{course.price}</Text>
+                  <TouchableOpacity style={styles.startButton}>
+                    <Text style={styles.startButtonText}>Start Learning</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
 
@@ -173,7 +178,12 @@ const OnlineCoursesScreen = ({ navigation }: any) => {
               <View style={styles.recommendedContent}>
                 <Text style={styles.recommendedTitle}>{course.title}</Text>
                 <Text style={styles.recommendedInstructor}>{course.instructor}</Text>
-                <Text style={styles.recommendedPrice}>{course.price}</Text>
+                <View style={styles.recommendedFooter}>
+                  <Text style={styles.recommendedPrice}>{course.price}</Text>
+                  <TouchableOpacity style={styles.recommendedStartButton}>
+                    <Text style={styles.recommendedStartButtonText}>Start</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
 
             </TouchableOpacity>
@@ -294,13 +304,17 @@ const styles = StyleSheet.create({
   courseFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start', // Changed from 'center' to 'flex-start' for better alignment
+  },
+  footerRight: {
+    alignItems: 'flex-end',
   },
   categoryBadge: {
     backgroundColor: Colors.secondary + '20',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 15,
+    marginTop: 5, // Added for better vertical alignment
   },
   categoryBadgeText: {
     fontSize: 12,
@@ -311,6 +325,19 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: Colors.primary,
+    marginBottom: 8, // Added space between price and button
+  },
+  startButton: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  startButtonText: {
+    color: Colors.white,
+    fontWeight: '600',
+    fontSize: 14,
   },
   recommendedContainer: {
     marginTop: 10,
@@ -342,10 +369,26 @@ const styles = StyleSheet.create({
     color: Colors.gray,
     marginBottom: 10,
   },
+  recommendedFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   recommendedPrice: {
     fontSize: 16,
     fontWeight: 'bold',
     color: Colors.secondary,
+  },
+  recommendedStartButton: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  recommendedStartButtonText: {
+    color: Colors.white,
+    fontWeight: '600',
+    fontSize: 12,
   },
 });
 

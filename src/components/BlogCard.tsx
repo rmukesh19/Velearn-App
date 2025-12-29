@@ -1,4 +1,3 @@
-// components/BlogCard.tsx
 import React from 'react';
 import {
   View,
@@ -9,6 +8,8 @@ import {
   Dimensions,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
+import { Colors } from '../theme/colors';
 
 type Blog = {
   id: string;
@@ -19,6 +20,7 @@ type Blog = {
   date?: string;
   readTime?: string;
   category?: string;
+  content?: string; // Add content field for full blog view
 };
 
 type Props = {
@@ -30,9 +32,30 @@ type Props = {
 const { width } = Dimensions.get('window');
 
 export default function BlogCard({ blog, onPress, compact = false }: Props) {
+  const navigation = useNavigation();
+
+  const handlePress = () => {
+    if (onPress) {
+      onPress();
+    } else {
+      // Default navigation to BlogViewScreen with blog data
+      navigation.navigate('BlogViewScreen', { 
+        blog,
+        blogId: blog.id 
+      });
+    }
+  };
+
+  const handleReadMore = () => {
+    navigation.navigate('BlogViewScreen', { 
+      blog,
+      blogId: blog.id 
+    });
+  };
+
   if (compact) {
     return (
-      <TouchableOpacity style={styles.compactContainer} onPress={onPress}>
+      <TouchableOpacity style={styles.compactContainer} onPress={handlePress}>
         {blog.thumbnail && (
           <Image source={{ uri: blog.thumbnail }} style={styles.compactThumbnail} />
         )}
@@ -43,13 +66,13 @@ export default function BlogCard({ blog, onPress, compact = false }: Props) {
           <View style={styles.compactFooter}>
             {blog.date && (
               <View style={styles.metaItem}>
-                <Ionicons name="calendar-outline" size={12} color="#8E8E93" />
+                <Ionicons name="calendar-outline" size={12} color={Colors.gray} />
                 <Text style={styles.metaText}>{blog.date}</Text>
               </View>
             )}
             {blog.readTime && (
               <View style={styles.metaItem}>
-                <Ionicons name="time-outline" size={12} color="#8E8E93" />
+                <Ionicons name="time-outline" size={12} color={Colors.gray} />
                 <Text style={styles.metaText}>{blog.readTime} read</Text>
               </View>
             )}
@@ -60,7 +83,7 @@ export default function BlogCard({ blog, onPress, compact = false }: Props) {
   }
 
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress}>
+    <TouchableOpacity style={styles.container} onPress={handlePress}>
       {blog.thumbnail && (
         <Image source={{ uri: blog.thumbnail }} style={styles.thumbnail} />
       )}
@@ -77,29 +100,32 @@ export default function BlogCard({ blog, onPress, compact = false }: Props) {
         <View style={styles.metaContainer}>
           {blog.author && (
             <View style={styles.metaItem}>
-              <Ionicons name="person-outline" size={14} color="#8E8E93" />
+              <Ionicons name="person-outline" size={14} color={Colors.gray} />
               <Text style={styles.metaText}>{blog.author}</Text>
             </View>
           )}
           
           {blog.date && (
             <View style={styles.metaItem}>
-              <Ionicons name="calendar-outline" size={14} color="#8E8E93" />
+              <Ionicons name="calendar-outline" size={14} color={Colors.gray} />
               <Text style={styles.metaText}>{blog.date}</Text>
             </View>
           )}
           
           {blog.readTime && (
             <View style={styles.metaItem}>
-              <Ionicons name="time-outline" size={14} color="#8E8E93" />
+              <Ionicons name="time-outline" size={14} color={Colors.gray} />
               <Text style={styles.metaText}>{blog.readTime} read</Text>
             </View>
           )}
         </View>
         
-        <TouchableOpacity style={styles.readMoreButton}>
-          <Text style={styles.readMoreText}>Read More</Text>
-          <Ionicons name="arrow-forward" size={16} color="#007AFF" />
+        <TouchableOpacity 
+          style={styles.readMoreButton}
+          onPress={handleReadMore}
+        >
+          <Text style={styles.readMoreText}>View More</Text>
+          <Ionicons name="arrow-forward" size={16} color={Colors.secondary} />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
@@ -108,10 +134,10 @@ export default function BlogCard({ blog, onPress, compact = false }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.white,
     borderRadius: 12,
     marginBottom: 16,
-    shadowColor: '#000',
+    shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -120,11 +146,11 @@ const styles = StyleSheet.create({
   },
   compactContainer: {
     flexDirection: 'row',
-    backgroundColor: 'white',
+    backgroundColor: Colors.white,
     borderRadius: 8,
     marginBottom: 12,
     padding: 12,
-    shadowColor: '#000',
+    shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
@@ -147,39 +173,41 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   categoryBadge: {
-    backgroundColor: '#E3F2FD',
+    backgroundColor: Colors.background,
     alignSelf: 'flex-start',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
     marginBottom: 8,
+    borderWidth: 1,
+    borderColor: Colors.lightGray,
   },
   categoryText: {
     fontSize: 12,
-    color: '#002e6e',
+    color: Colors.primary,
     fontWeight: '600',
   },
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1D1D1F',
+    color: Colors.black,
     marginBottom: 8,
   },
   compactTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1D1D1F',
+    color: Colors.black,
     marginBottom: 4,
   },
   excerpt: {
     fontSize: 14,
-    color: '#666',
+    color: Colors.gray,
     lineHeight: 20,
     marginBottom: 12,
   },
   compactExcerpt: {
     fontSize: 12,
-    color: '#8E8E93',
+    color: Colors.gray,
     lineHeight: 18,
     marginBottom: 8,
   },
@@ -202,7 +230,7 @@ const styles = StyleSheet.create({
   },
   metaText: {
     fontSize: 12,
-    color: '#8E8E93',
+    color: Colors.gray,
     marginLeft: 4,
   },
   readMoreButton: {
@@ -212,7 +240,7 @@ const styles = StyleSheet.create({
   },
   readMoreText: {
     fontSize: 14,
-    color: '#007AFF',
+    color: Colors.secondary,
     fontWeight: '600',
     marginRight: 4,
   },

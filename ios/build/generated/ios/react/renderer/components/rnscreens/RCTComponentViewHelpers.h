@@ -13,6 +13,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@protocol RCTRNSBottomTabsAccessoryContentViewProtocol <NSObject>
+
+@end
+
+@protocol RCTRNSBottomTabsAccessoryViewProtocol <NSObject>
+
+@end
+
 @protocol RCTRNSBottomTabsViewProtocol <NSObject>
 
 @end

@@ -13,12 +13,41 @@
 
 
 namespace facebook::react {
+class RNSBottomTabsAccessoryContentEventEmitter : public ViewEventEmitter {
+ public:
+  using ViewEventEmitter::ViewEventEmitter;
+
+  
+  
+};
+class RNSBottomTabsAccessoryEventEmitter : public ViewEventEmitter {
+ public:
+  using ViewEventEmitter::ViewEventEmitter;
+
+  enum class OnEnvironmentChangeEnvironment {
+    Regular,
+    Inline
+  };
+
+  static char const *toString(const OnEnvironmentChangeEnvironment value) {
+    switch (value) {
+      case OnEnvironmentChangeEnvironment::Regular: return "regular";
+      case OnEnvironmentChangeEnvironment::Inline: return "inline";
+    }
+  }
+
+  struct OnEnvironmentChange {
+      OnEnvironmentChangeEnvironment environment;
+    };
+  void onEnvironmentChange(OnEnvironmentChange value) const;
+};
 class RNSBottomTabsEventEmitter : public ViewEventEmitter {
  public:
   using ViewEventEmitter::ViewEventEmitter;
 
   struct OnNativeFocusChange {
       std::string tabKey;
+    bool repeatedSelectionHandledBySpecialEffect;
     };
   void onNativeFocusChange(OnNativeFocusChange value) const;
 };

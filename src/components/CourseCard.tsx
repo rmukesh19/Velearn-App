@@ -1,4 +1,3 @@
-// components/CourseCard.tsx
 import React from 'react';
 import {
   View,
@@ -9,6 +8,10 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Colors } from '../theme/colors';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../types/navigation'; // Adjust path as needed
 
 const { width } = Dimensions.get('window');
 
@@ -27,20 +30,56 @@ interface CourseCardProps {
   };
   horizontal?: boolean;
   showProgress?: boolean;
+  onPress?: (courseId: string) => void; // Add onPress prop for parent control
 }
 
-export default function CourseCard({ course, horizontal = false, showProgress = false }: CourseCardProps) {
-  // Calculate card width with proper margins
-  const cardWidth = horizontal ? width * 0.8 - 24 : width - 32;
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
+export default function CourseCard({ 
+  course, 
+  horizontal = false, 
+  showProgress = false,
+  onPress 
+}: CourseCardProps) {
+  const navigation = useNavigation<NavigationProp>();
+  
+  // Calculate card width with reduced margins
+  const cardWidth = horizontal ? width * 0.85 : width - 24;
   
   // Fixed height for all cards
-  const cardHeight = 400; // Fixed height for consistency
+  const cardHeight = 400;
+
+  const handleCardPress = () => {
+    // If parent provides onPress handler, use it
+    if (onPress) {
+      onPress(course.id);
+    } else {
+      // Otherwise, navigate to course detail or free courses screen
+      // Uncomment if you have a CourseDetailScreen
+      // navigation.navigate('CourseDetailScreen', { courseId: course.id });
+      
+      // Navigate to FreeCoursesScreen as fallback
+      navigation.navigate('FreeCoursesScreen');
+    }
+  };
+
+  const handleAccessButtonPress = () => {
+    if (course.type === 'live') {
+      // For live courses, you might want different behavior
+      // navigation.navigate('LiveClassScreen', { courseId: course.id });
+      console.log('Join live course:', course.id);
+    } else {
+      // For recorded/free courses, navigate to FreeCoursesScreen
+      navigation.navigate('FreeCoursesScreen');
+    }
+  };
 
   return (
     <View style={[styles.cardContainer, { width: cardWidth }]}>
       <TouchableOpacity 
         style={[styles.card, { height: cardHeight }]} 
         activeOpacity={0.9}
+        onPress={handleCardPress}
       >
         {/* TOP: Image with badges */}
         <View style={styles.imageContainer}>
@@ -68,7 +107,7 @@ export default function CourseCard({ course, horizontal = false, showProgress = 
             
             {/* "Access Free" badge on bottom of image */}
             <View style={styles.accessBadge}>
-              <Ionicons name="lock-open-outline" size={12} color="white" />
+              <Ionicons name="lock-open-outline" size={12} color={Colors.white} />
               <Text style={styles.accessText}>Access Free</Text>
             </View>
           </View>
@@ -76,17 +115,20 @@ export default function CourseCard({ course, horizontal = false, showProgress = 
 
         {/* MIDDLE: Text Content - Fixed height container */}
         <View style={styles.textContainer}>
-          {/* Level and Duration */}
+          {/* Level and Duration Row - Level on left, Hours on right with icon */}
           <View style={styles.infoRow}>
-            {course.level && (
-              <View style={styles.levelContainer}>
-                <View style={styles.levelBadge}>
-                  <Text style={styles.levelText}>{course.level}</Text>
-                </View>
-                <View style={styles.separatorDot} />
-                <Text style={styles.durationText}>{course.duration || '25hrs'}</Text>
-              </View>
-            )}
+            {/* Left side: Intermediate Level Badge */}
+            <View style={styles.levelBadge}>
+              <Text style={styles.levelText}>
+                {course.level ? course.level.toUpperCase() : 'INTERMEDIATE'}
+              </Text>
+            </View>
+            
+            {/* Right side: Hours with icon */}
+            <View style={styles.durationContainer}>
+              <Ionicons name="time-outline" size={14} color={Colors.gray} style={styles.durationIcon} />
+              <Text style={styles.durationText}>{course.duration || '25hrs'}</Text>
+            </View>
           </View>
 
           {/* Course Title - Fixed 2 lines */}
@@ -102,7 +144,7 @@ export default function CourseCard({ course, horizontal = false, showProgress = 
           {/* Instructor Info */}
           {course.instructor && (
             <View style={styles.instructorContainer}>
-              <Ionicons name="person-outline" size={14} color="#6C757D" />
+              <Ionicons name="person-outline" size={14} color={Colors.gray} />
               <Text style={styles.instructorText} numberOfLines={1}>
                 By {course.instructor}
               </Text>
@@ -133,14 +175,15 @@ export default function CourseCard({ course, horizontal = false, showProgress = 
 
         {/* BOTTOM: Action Buttons - Fixed at bottom */}
         <View style={styles.actionContainer}>
-          <TouchableOpacity style={styles.accessButton} activeOpacity={0.8}>
-            <Ionicons name="play-circle-outline" size={18} color="white" />
+          <TouchableOpacity 
+            style={styles.accessButton} 
+            activeOpacity={0.8}
+            onPress={handleAccessButtonPress}
+          >
+            <Ionicons name="play-circle-outline" size={18} color={Colors.white} />
             <Text style={styles.accessButtonText}>
-              {course.type === 'live' ? 'Join Now' : 'Start Learning'}
+              {course.type === 'live' ? 'Join Now' : 'Access Free'}
             </Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.bookmarkButton} activeOpacity={0.7}>
-            <Ionicons name="bookmark-outline" size={20} color="#6C757D" />
           </TouchableOpacity>
         </View>
       </TouchableOpacity>
@@ -150,25 +193,25 @@ export default function CourseCard({ course, horizontal = false, showProgress = 
 
 const styles = StyleSheet.create({
   cardContainer: {
-    marginHorizontal: 8,
+    marginHorizontal: 6, // Reduced from 8
     marginBottom: 16,
   },
   card: {
-    backgroundColor: 'white',
+    backgroundColor: Colors.white,
     borderRadius: 16,
     overflow: 'hidden',
-    shadowColor: '#000',
+    shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 4,
     borderWidth: 1,
-    borderColor: '#F0F0F0',
+    borderColor: Colors.lightGray,
     flexDirection: 'column',
     justifyContent: 'space-between',
   },
   imageContainer: {
-    height: 160, // Fixed image height
+    height: 160,
     position: 'relative',
     width: '100%',
   },
@@ -182,14 +225,14 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    padding: 12,
+    padding: 10, // Reduced from 12
     justifyContent: 'space-between',
   },
   liveBadge: {
     alignSelf: 'flex-end',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 59, 48, 0.95)',
+    backgroundColor: 'rgba(244, 67, 54, 0.95)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
@@ -198,18 +241,18 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: 'white',
+    backgroundColor: Colors.white,
     marginRight: 4,
   },
   liveText: {
     fontSize: 10,
     fontWeight: '700',
-    color: 'white',
+    color: Colors.white,
     letterSpacing: 0.5,
   },
   categoryBadgeTop: {
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(0, 123, 255, 0.95)',
+    backgroundColor: 'rgba(0, 46, 110, 0.95)',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 6,
@@ -217,14 +260,14 @@ const styles = StyleSheet.create({
   categoryBadgeText: {
     fontSize: 11,
     fontWeight: '700',
-    color: 'white',
+    color: Colors.white,
     letterSpacing: 0.5,
   },
   accessBadge: {
     alignSelf: 'flex-start',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(52, 199, 89, 0.95)',
+    backgroundColor: 'rgba(76, 175, 80, 0.95)',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 6,
@@ -233,76 +276,79 @@ const styles = StyleSheet.create({
   accessText: {
     fontSize: 12,
     fontWeight: '700',
-    color: 'white',
+    color: Colors.white,
     letterSpacing: 0.3,
   },
   textContainer: {
     flex: 1,
-    padding: 16,
+    padding: 14, // Reduced from 16
     justifyContent: 'space-between',
   },
   infoRow: {
-    marginBottom: 8,
-  },
-  levelContainer: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 8,
   },
   levelBadge: {
-    backgroundColor: '#FF6B35',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 6,
+    backgroundColor: Colors.warning,
+    paddingHorizontal: 10, // Reduced from 12
+    paddingVertical: 5, // Reduced from 6
+    borderRadius: 8,
+    alignSelf: 'flex-start',
   },
   levelText: {
-    fontSize: 11,
+    fontSize: 11, // Reduced from 12
     fontWeight: '700',
-    color: 'white',
+    color: Colors.white,
+    letterSpacing: 0.5,
   },
-  separatorDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#6C757D',
-    marginHorizontal: 8,
+  durationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4, // Reduced from 6
+  },
+  durationIcon: {
+    marginRight: 2, // Reduced from 4
   },
   durationText: {
-    fontSize: 13,
+    fontSize: 13, // Reduced from 14
     fontWeight: '600',
-    color: '#6C757D',
+    color: Colors.gray,
   },
   title: {
-    fontSize: 18,
+    fontSize: 17, // Reduced from 18
     fontWeight: '700',
-    color: '#212529',
-    marginBottom: 8,
-    lineHeight: 24,
-    minHeight: 48, // Fixed height for 2 lines
+    color: Colors.black,
+    marginBottom: 4, // Reduced from 8
+    lineHeight: 22, // Reduced from 24
+    minHeight: 44, // Reduced from 48
   },
   description: {
-    fontSize: 14,
-    color: '#6C757D',
-    marginBottom: 12,
-    lineHeight: 20,
-    minHeight: 40, // Fixed height for 2 lines
+    fontSize: 13, // Reduced from 14
+    color: Colors.gray,
+    marginBottom: 8, // Increased from 4 for better spacing
+    lineHeight: 18, // Reduced from 20
+    minHeight: 36, // Reduced from 40
   },
   instructorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 8, // Reduced from 12
     gap: 6,
   },
   instructorText: {
-    fontSize: 13,
+    fontSize: 12, // Reduced from 13
     fontWeight: '500',
-    color: '#495057',
+    color: Colors.black,
     flex: 1,
   },
   progressContainer: {
     marginBottom: 4,
   },
   progressSpacer: {
-    height: 34, // Same height as progress container (24 + margin)
+    height: 34,
     marginBottom: 4,
   },
   progressHeader: {
@@ -314,34 +360,34 @@ const styles = StyleSheet.create({
   progressLabel: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#6C757D',
+    color: Colors.gray,
   },
   progressPercent: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#212529',
+    color: Colors.black,
   },
   progressBar: {
     height: 6,
-    backgroundColor: '#E9ECEF',
+    backgroundColor: Colors.lightGray,
     borderRadius: 3,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#34C759',
+    backgroundColor: Colors.success,
     borderRadius: 3,
   },
   actionContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingBottom: 16,
+    paddingHorizontal: 14, // Reduced from 16
+    paddingBottom: 14, // Reduced from 16
     gap: 12,
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-    paddingTop: 16,
-    minHeight: 68, // Fixed height for action section
+    borderTopColor: Colors.lightGray,
+    paddingTop: 14, // Reduced from 16
+    minHeight: 64, // Reduced from 68
   },
   accessButton: {
     flex: 1,
@@ -349,24 +395,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#007AFF',
-    paddingVertical: 12,
+    backgroundColor: Colors.primary,
+    paddingVertical: 11, // Reduced from 12
     borderRadius: 10,
-    minHeight: 48,
+    minHeight: 46, // Reduced from 48
   },
   accessButtonText: {
-    fontSize: 15,
+    fontSize: 14, // Reduced from 15
     fontWeight: '700',
-    color: 'white',
-  },
-  bookmarkButton: {
-    width: 48,
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 10,
-    backgroundColor: '#F8F9FA',
-    borderWidth: 1,
-    borderColor: '#E9ECEF',
+    color: Colors.white,
   },
 });

@@ -1,26 +1,26 @@
 {
-  "root": "/Users/ashokkumar/Downloads/Velearn",
-  "reactNativePath": "/Users/ashokkumar/Downloads/Velearn/node_modules/react-native",
+  "root": "/Users/ashokkumar/Velearn-App",
+  "reactNativePath": "/Users/ashokkumar/Velearn-App/node_modules/react-native",
   "reactNativeVersion": "0.82",
   "dependencies": {
     "@react-native-async-storage/async-storage": {
-      "root": "/Users/ashokkumar/Downloads/Velearn/node_modules/@react-native-async-storage/async-storage",
+      "root": "/Users/ashokkumar/Velearn-App/node_modules/@react-native-async-storage/async-storage",
       "name": "@react-native-async-storage/async-storage",
       "platforms": {
         "ios": {
-          "podspecPath": "/Users/ashokkumar/Downloads/Velearn/node_modules/@react-native-async-storage/async-storage/RNCAsyncStorage.podspec",
+          "podspecPath": "/Users/ashokkumar/Velearn-App/node_modules/@react-native-async-storage/async-storage/RNCAsyncStorage.podspec",
           "version": "2.2.0",
           "configurations": [],
           "scriptPhases": []
         },
         "android": {
-          "sourceDir": "/Users/ashokkumar/Downloads/Velearn/node_modules/@react-native-async-storage/async-storage/android",
+          "sourceDir": "/Users/ashokkumar/Velearn-App/node_modules/@react-native-async-storage/async-storage/android",
           "packageImportPath": "import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;",
           "packageInstance": "new AsyncStoragePackage()",
           "buildTypes": [],
           "libraryName": "rnasyncstorage",
           "componentDescriptors": [],
-          "cmakeListsPath": "/Users/ashokkumar/Downloads/Velearn/node_modules/@react-native-async-storage/async-storage/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cmakeListsPath": "/Users/ashokkumar/Velearn-App/node_modules/@react-native-async-storage/async-storage/android/build/generated/source/codegen/jni/CMakeLists.txt",
           "cxxModuleCMakeListsModuleName": null,
           "cxxModuleCMakeListsPath": null,
           "cxxModuleHeaderName": null,
@@ -29,17 +29,17 @@
       }
     },
     "react-native-gesture-handler": {
-      "root": "/Users/ashokkumar/Downloads/Velearn/node_modules/react-native-gesture-handler",
+      "root": "/Users/ashokkumar/Velearn-App/node_modules/react-native-gesture-handler",
       "name": "react-native-gesture-handler",
       "platforms": {
         "ios": {
-          "podspecPath": "/Users/ashokkumar/Downloads/Velearn/node_modules/react-native-gesture-handler/RNGestureHandler.podspec",
+          "podspecPath": "/Users/ashokkumar/Velearn-App/node_modules/react-native-gesture-handler/RNGestureHandler.podspec",
           "version": "2.29.1",
           "configurations": [],
           "scriptPhases": []
         },
         "android": {
-          "sourceDir": "/Users/ashokkumar/Downloads/Velearn/node_modules/react-native-gesture-handler/android",
+          "sourceDir": "/Users/ashokkumar/Velearn-App/node_modules/react-native-gesture-handler/android",
           "packageImportPath": "import com.swmansion.gesturehandler.RNGestureHandlerPackage;",
           "packageInstance": "new RNGestureHandlerPackage()",
           "buildTypes": [],
@@ -48,7 +48,7 @@
             "RNGestureHandlerButtonComponentDescriptor",
             "RNGestureHandlerRootViewComponentDescriptor"
           ],
-          "cmakeListsPath": "/Users/ashokkumar/Downloads/Velearn/node_modules/react-native-gesture-handler/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cmakeListsPath": "/Users/ashokkumar/Velearn-App/node_modules/react-native-gesture-handler/android/build/generated/source/codegen/jni/CMakeLists.txt",
           "cxxModuleCMakeListsModuleName": null,
           "cxxModuleCMakeListsPath": null,
           "cxxModuleHeaderName": null,
@@ -57,22 +57,22 @@
       }
     },
     "react-native-linear-gradient": {
-      "root": "/Users/ashokkumar/Downloads/Velearn/node_modules/react-native-linear-gradient",
+      "root": "/Users/ashokkumar/Velearn-App/node_modules/react-native-linear-gradient",
       "name": "react-native-linear-gradient",
       "platforms": {
         "ios": {
-          "podspecPath": "/Users/ashokkumar/Downloads/Velearn/node_modules/react-native-linear-gradient/BVLinearGradient.podspec",
+          "podspecPath": "/Users/ashokkumar/Velearn-App/node_modules/react-native-linear-gradient/BVLinearGradient.podspec",
           "version": "2.8.3",
           "configurations": [],
           "scriptPhases": []
         },
         "android": {
-          "sourceDir": "/Users/ashokkumar/Downloads/Velearn/node_modules/react-native-linear-gradient/android",
+          "sourceDir": "/Users/ashokkumar/Velearn-App/node_modules/react-native-linear-gradient/android",
           "packageImportPath": "import com.BV.LinearGradient.LinearGradientPackage;",
           "packageInstance": "new LinearGradientPackage()",
           "buildTypes": [],
           "componentDescriptors": [],
-          "cmakeListsPath": "/Users/ashokkumar/Downloads/Velearn/node_modules/react-native-linear-gradient/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cmakeListsPath": "/Users/ashokkumar/Velearn-App/node_modules/react-native-linear-gradient/android/build/generated/source/codegen/jni/CMakeLists.txt",
           "cxxModuleCMakeListsModuleName": null,
           "cxxModuleCMakeListsPath": null,
           "cxxModuleHeaderName": null,
@@ -81,17 +81,17 @@
       }
     },
     "react-native-safe-area-context": {
-      "root": "/Users/ashokkumar/Downloads/Velearn/node_modules/react-native-safe-area-context",
+      "root": "/Users/ashokkumar/Velearn-App/node_modules/react-native-safe-area-context",
       "name": "react-native-safe-area-context",
       "platforms": {
         "ios": {
-          "podspecPath": "/Users/ashokkumar/Downloads/Velearn/node_modules/react-native-safe-area-context/react-native-safe-area-context.podspec",
+          "podspecPath": "/Users/ashokkumar/Velearn-App/node_modules/react-native-safe-area-context/react-native-safe-area-context.podspec",
           "version": "5.6.2",
           "configurations": [],
           "scriptPhases": []
         },
         "android": {
-          "sourceDir": "/Users/ashokkumar/Downloads/Velearn/node_modules/react-native-safe-area-context/android",
+          "sourceDir": "/Users/ashokkumar/Velearn-App/node_modules/react-native-safe-area-context/android",
           "packageImportPath": "import com.th3rdwave.safeareacontext.SafeAreaContextPackage;",
           "packageInstance": "new SafeAreaContextPackage()",
           "buildTypes": [],
@@ -100,7 +100,7 @@
             "RNCSafeAreaProviderComponentDescriptor",
             "RNCSafeAreaViewComponentDescriptor"
           ],
-          "cmakeListsPath": "/Users/ashokkumar/Downloads/Velearn/node_modules/react-native-safe-area-context/android/src/main/jni/CMakeLists.txt",
+          "cmakeListsPath": "/Users/ashokkumar/Velearn-App/node_modules/react-native-safe-area-context/android/src/main/jni/CMakeLists.txt",
           "cxxModuleCMakeListsModuleName": null,
           "cxxModuleCMakeListsPath": null,
           "cxxModuleHeaderName": null,
@@ -109,17 +109,17 @@
       }
     },
     "react-native-screens": {
-      "root": "/Users/ashokkumar/Downloads/Velearn/node_modules/react-native-screens",
+      "root": "/Users/ashokkumar/Velearn-App/node_modules/react-native-screens",
       "name": "react-native-screens",
       "platforms": {
         "ios": {
-          "podspecPath": "/Users/ashokkumar/Downloads/Velearn/node_modules/react-native-screens/RNScreens.podspec",
-          "version": "4.18.0",
+          "podspecPath": "/Users/ashokkumar/Velearn-App/node_modules/react-native-screens/RNScreens.podspec",
+          "version": "4.19.0",
           "configurations": [],
           "scriptPhases": []
         },
         "android": {
-          "sourceDir": "/Users/ashokkumar/Downloads/Velearn/node_modules/react-native-screens/android",
+          "sourceDir": "/Users/ashokkumar/Velearn-App/node_modules/react-native-screens/android",
           "packageImportPath": "import com.swmansion.rnscreens.RNScreensPackage;",
           "packageInstance": "new RNScreensPackage()",
           "buildTypes": [],
@@ -139,7 +139,7 @@
             "RNSBottomTabsComponentDescriptor",
             "RNSSafeAreaViewComponentDescriptor"
           ],
-          "cmakeListsPath": "/Users/ashokkumar/Downloads/Velearn/node_modules/react-native-screens/android/src/main/jni/CMakeLists.txt",
+          "cmakeListsPath": "/Users/ashokkumar/Velearn-App/node_modules/react-native-screens/android/src/main/jni/CMakeLists.txt",
           "cxxModuleCMakeListsModuleName": null,
           "cxxModuleCMakeListsPath": null,
           "cxxModuleHeaderName": null,
@@ -148,23 +148,23 @@
       }
     },
     "react-native-vector-icons": {
-      "root": "/Users/ashokkumar/Downloads/Velearn/node_modules/react-native-vector-icons",
+      "root": "/Users/ashokkumar/Velearn-App/node_modules/react-native-vector-icons",
       "name": "react-native-vector-icons",
       "platforms": {
         "ios": {
-          "podspecPath": "/Users/ashokkumar/Downloads/Velearn/node_modules/react-native-vector-icons/RNVectorIcons.podspec",
+          "podspecPath": "/Users/ashokkumar/Velearn-App/node_modules/react-native-vector-icons/RNVectorIcons.podspec",
           "version": "10.3.0",
           "configurations": [],
           "scriptPhases": []
         },
         "android": {
-          "sourceDir": "/Users/ashokkumar/Downloads/Velearn/node_modules/react-native-vector-icons/android",
+          "sourceDir": "/Users/ashokkumar/Velearn-App/node_modules/react-native-vector-icons/android",
           "packageImportPath": "import com.oblador.vectoricons.VectorIconsPackage;",
           "packageInstance": "new VectorIconsPackage()",
           "buildTypes": [],
           "libraryName": "RNVectorIconsSpec",
           "componentDescriptors": [],
-          "cmakeListsPath": "/Users/ashokkumar/Downloads/Velearn/node_modules/react-native-vector-icons/android/build/generated/source/codegen/jni/CMakeLists.txt",
+          "cmakeListsPath": "/Users/ashokkumar/Velearn-App/node_modules/react-native-vector-icons/android/build/generated/source/codegen/jni/CMakeLists.txt",
           "cxxModuleCMakeListsModuleName": null,
           "cxxModuleCMakeListsPath": null,
           "cxxModuleHeaderName": null,
@@ -335,7 +335,7 @@
         {
           "name": "--path <path>",
           "description": "Path to the React Native project root.",
-          "default": "/Users/ashokkumar/Downloads/Velearn/ios"
+          "default": "/Users/ashokkumar/Velearn-App/ios"
         },
         {
           "name": "--platform <string>",
@@ -391,7 +391,8 @@
         },
         {
           "name": "--terminal <string>",
-          "description": "Launches the Metro Bundler in a new window using the specified terminal path."
+          "description": "Launches the Metro Bundler in a new window using the specified terminal path.",
+          "default": "vscode"
         },
         {
           "name": "--binary-path <string>",
@@ -558,7 +559,8 @@
         },
         {
           "name": "--terminal <string>",
-          "description": "Launches the Metro Bundler in a new window using the specified terminal path."
+          "description": "Launches the Metro Bundler in a new window using the specified terminal path.",
+          "default": "vscode"
         },
         {
           "name": "--appId <string>",
@@ -633,7 +635,7 @@
   "assets": [],
   "project": {
     "ios": {
-      "sourceDir": "/Users/ashokkumar/Downloads/Velearn/ios",
+      "sourceDir": "/Users/ashokkumar/Velearn-App/ios",
       "xcodeProject": {
         "name": "Velearn.xcworkspace",
         "path": ".",
@@ -642,7 +644,7 @@
       "assets": []
     },
     "android": {
-      "sourceDir": "/Users/ashokkumar/Downloads/Velearn/android",
+      "sourceDir": "/Users/ashokkumar/Velearn-App/android",
       "appName": "app",
       "packageName": "com.velearn",
       "applicationId": "com.velearn",

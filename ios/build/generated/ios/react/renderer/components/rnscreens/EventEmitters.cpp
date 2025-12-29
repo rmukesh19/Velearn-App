@@ -13,10 +13,21 @@
 
 namespace facebook::react {
 
+
+void RNSBottomTabsAccessoryEventEmitter::onEnvironmentChange(OnEnvironmentChange event) const {
+  dispatchEvent("environmentChange", [event=std::move(event)](jsi::Runtime &runtime) {
+    auto payload = jsi::Object(runtime);
+    payload.setProperty(runtime, "environment", toString(event.environment));
+    return payload;
+  });
+}
+
+
 void RNSBottomTabsEventEmitter::onNativeFocusChange(OnNativeFocusChange event) const {
   dispatchEvent("nativeFocusChange", [event=std::move(event)](jsi::Runtime &runtime) {
     auto payload = jsi::Object(runtime);
     payload.setProperty(runtime, "tabKey", event.tabKey);
+payload.setProperty(runtime, "repeatedSelectionHandledBySpecialEffect", event.repeatedSelectionHandledBySpecialEffect);
     return payload;
   });
 }

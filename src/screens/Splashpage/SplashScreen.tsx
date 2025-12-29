@@ -8,7 +8,7 @@ import {
   Dimensions,
   Image,
 } from 'react-native';
-import { Colors } from '../theme/colors';
+import { Colors } from '../../theme/colors';
 
 const { width, height } = Dimensions.get('window');
 
@@ -143,7 +143,7 @@ const SplashScreen = ({ navigation }: any) => {
             ]}
           >
             <Image
-              source={require('../images/logo/velearn-logo.png')}
+              source={require('../../images/logo/velearn-logo.png')}
               style={styles.logoImage}
               resizeMode="contain"
             />

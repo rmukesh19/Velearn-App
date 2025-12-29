@@ -10,7 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { Colors } from '../theme/colors';
+import { Colors } from '../../theme/colors';
 
 const DebuggingScreen = () => {
   const [activeTab, setActiveTab] = useState('console');
