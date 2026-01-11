@@ -9,4 +9,5 @@ export const Colors = {
   success: '#4CAF50',
   error: '#f44336',
   warning: '#ff9800',
+  
 };

@@ -7,6 +7,7 @@ import {
   StatusBar,
   Dimensions,
   Image,
+  Easing,
 } from 'react-native';
 import { Colors } from '../../theme/colors';
 
@@ -14,55 +15,65 @@ const { width, height } = Dimensions.get('window');
 
 const SplashScreen = ({ navigation }: any) => {
   const fadeAnim = new Animated.Value(0);
-  const scaleAnim = new Animated.Value(0.8);
+  const scaleAnim = new Animated.Value(0.7);
   const logoScale = new Animated.Value(0);
   const waveAnim = new Animated.Value(0);
+  const progressAnim = new Animated.Value(0);
 
   useEffect(() => {
-    // Start wave animation
+    // Wave animation loop
     Animated.loop(
       Animated.sequence([
         Animated.timing(waveAnim, {
           toValue: 1,
-          duration: 1500,
+          duration: 1800,
+          easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
         Animated.timing(waveAnim, {
           toValue: 0,
-          duration: 1500,
+          duration: 1800,
+          easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
       ])
     ).start();
 
+    // Progress bar animation
+    Animated.timing(progressAnim, {
+      toValue: 1,
+      duration: 2800,
+      easing: Easing.ease,
+      useNativeDriver: false,
+    }).start();
+
     // Main animation sequence
     Animated.sequence([
-      // Logo bounce animation
+      Animated.delay(300),
       Animated.spring(logoScale, {
         toValue: 1,
-        friction: 8,
-        tension: 40,
+        friction: 7,
+        tension: 80,
         useNativeDriver: true,
       }),
-      // Fade in and scale up content
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
-          duration: 800,
+          duration: 900,
+          easing: Easing.out(Easing.exp),
           useNativeDriver: true,
         }),
-        Animated.timing(scaleAnim, {
+        Animated.spring(scaleAnim, {
           toValue: 1,
-          duration: 800,
+          friction: 8,
+          tension: 50,
           useNativeDriver: true,
         }),
       ]),
     ]).start();
 
-    // Navigate after 3 seconds
     const timer = setTimeout(() => {
-      // FIXED: Changed from 'AuthStack' to 'MainTabs'
-      navigation.replace('MainTabs'); // Navigate to the MainTabs
+      navigation.replace('MainTabs');
     }, 3000);
 
     return () => clearTimeout(timer);
@@ -74,12 +85,12 @@ const SplashScreen = ({ navigation }: any) => {
     for (let i = 0; i < 3; i++) {
       const scale = waveAnim.interpolate({
         inputRange: [0, 1],
-        outputRange: [1, 1.5 + i * 0.3],
+        outputRange: [1, 1.8 + i * 0.2],
       });
 
       const opacity = waveAnim.interpolate({
-        inputRange: [0, 1],
-        outputRange: [0.1, 0],
+        inputRange: [0, 0.5, 1],
+        outputRange: [0.15, 0.05, 0],
       });
 
       circles.push(
@@ -90,8 +101,6 @@ const SplashScreen = ({ navigation }: any) => {
             {
               transform: [{ scale }],
               opacity,
-              borderWidth: 1,
-              borderColor: Colors.primary + '20',
             },
           ]}
         />
@@ -104,20 +113,26 @@ const SplashScreen = ({ navigation }: any) => {
     <View style={styles.container}>
       <StatusBar backgroundColor={Colors.white} barStyle="dark-content" />
       
-      {/* Decorative Background Elements */}
+      {/* Modern Background Elements */}
       <View style={styles.backgroundElements}>
-        {/* Top left accent */}
-        <View style={[styles.accentCircle, styles.topLeftAccent]} />
+        {/* Gradient-inspired accent */}
+        <View style={styles.gradientAccent} />
         
-        {/* Bottom right accent */}
-        <View style={[styles.accentCircle, styles.bottomRightAccent]} />
-        
-        {/* Geometric pattern */}
-        <View style={styles.geometricPattern}>
-          <View style={[styles.geometricShape, styles.shape1]} />
-          <View style={[styles.geometricShape, styles.shape2]} />
-          <View style={[styles.geometricShape, styles.shape3]} />
-        </View>
+        {/* Floating particles */}
+        {[...Array(5)].map((_, i) => (
+          <View
+            key={i}
+            style={[
+              styles.particle,
+              {
+                top: 15 + (i * 15) % 40,
+                left: 20 + (i * 30) % 60,
+                transform: [{ rotate: `${i * 15}deg` }],
+                opacity: 0.15 - i * 0.02,
+              },
+            ]}
+          />
+        ))}
       </View>
 
       {/* Main Content */}
@@ -135,7 +150,7 @@ const SplashScreen = ({ navigation }: any) => {
                   {
                     rotate: logoScale.interpolate({
                       inputRange: [0, 1],
-                      outputRange: ['-180deg', '0deg'],
+                      outputRange: ['-20deg', '0deg'],
                     }),
                   },
                 ],
@@ -160,13 +175,11 @@ const SplashScreen = ({ navigation }: any) => {
             },
           ]}
         >
-       
           
-          {/* Divider */}
+          <Text style={styles.appTagline}>Code. Learn. Grow.</Text>
           <View style={styles.divider} />
-          
           <Text style={styles.appDescription}>
-            Your personalized coding learning platform
+            Personalized coding journey for modern developers
           </Text>
         </Animated.View>
 
@@ -179,27 +192,24 @@ const SplashScreen = ({ navigation }: any) => {
             },
           ]}
         >
+          {/* Progress bar with modern styling */}
           <View style={styles.loadingBar}>
             <Animated.View
               style={[
                 styles.loadingProgress,
                 {
-                  transform: [
-                    {
-                      translateX: waveAnim.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [-100, 100],
-                      }),
-                    },
-                  ],
+                  width: progressAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ['0%', '100%'],
+                  }),
                 },
               ]}
             />
           </View>
           
-          <Text style={styles.loadingText}>Preparing your learning journey...</Text>
+          <Text style={styles.loadingText}>Initializing your learning path...</Text>
           
-          {/* Animated dots */}
+          {/* Animated micro-interaction dots */}
           <View style={styles.dotsContainer}>
             {[...Array(3)].map((_, i) => (
               <Animated.View
@@ -207,15 +217,19 @@ const SplashScreen = ({ navigation }: any) => {
                 style={[
                   styles.animatedDot,
                   {
-                    backgroundColor: Colors.primary,
                     transform: [
                       {
                         translateY: waveAnim.interpolate({
                           inputRange: [0, 0.5, 1],
-                          outputRange: [0, -8, 0],
+                          outputRange: [0, -10, 0],
                         }),
                       },
                     ],
+                    opacity: fadeAnim.interpolate({
+                      inputRange: [0, 0.8, 1],
+                      outputRange: [0, 0.7, 1],
+                    }),
+                    animationDelay: i * 200,
                   },
                 ]}
               />
@@ -223,7 +237,7 @@ const SplashScreen = ({ navigation }: any) => {
           </View>
         </Animated.View>
 
-        {/* Version and Copyright */}
+        {/* Minimal Footer */}
         <Animated.View
           style={[
             styles.footer,
@@ -232,14 +246,9 @@ const SplashScreen = ({ navigation }: any) => {
             },
           ]}
         >
-          <View style={styles.footerContent}>
-            <Text style={styles.versionText}>Version 2.1.0</Text>
-            <View style={styles.dotSeparator} />
-            <Text style={styles.copyrightText}>© 2025 Velearn Inc.</Text>
-          </View>
-          
+          <Text style={styles.versionText}>v1.1.0</Text>
           <Text style={styles.poweredBy}>
-            Powered by Interactive Learning Technology
+            © 2026 Velearn • AI-Powered Learning
           </Text>
         </Animated.View>
       </View>
@@ -251,207 +260,168 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
+    overflow: 'hidden',
   },
   backgroundElements: {
     position: 'absolute',
     width: '100%',
     height: '100%',
-  },
-  accentCircle: {
-    position: 'absolute',
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: Colors.primary + '08',
-  },
-  topLeftAccent: {
-    top: -100,
-    left: -100,
-  },
-  bottomRightAccent: {
-    bottom: -100,
-    right: -100,
-  },
-  geometricPattern: {
-    position: 'absolute',
-    top: '30%',
-    right: 30,
-  },
-  geometricShape: {
-    position: 'absolute',
-    backgroundColor: Colors.secondary + '10',
-  },
-  shape1: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-    transform: [{ rotate: '45deg' }],
     top: 0,
-    right: 0,
+    left: 0,
   },
-  shape2: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    top: 30,
-    right: -20,
+  gradientAccent: {
+    position: 'absolute',
+    top: -120,
+    right: -120,
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+    backgroundColor: Colors.primary,
+    opacity: 0.05,
   },
-  shape3: {
-    width: 30,
-    height: 30,
-    borderRadius: 6,
-    top: -20,
-    right: 30,
+  particle: {
+    position: 'absolute',
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.primary,
   },
   content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: 24,
+    paddingTop: 60,
   },
   logoWrapper: {
     position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 50,
+    marginBottom: 40,
+    height: 160,
   },
   waveCircle: {
     position: 'absolute',
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    backgroundColor: Colors.primary + '10',
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: Colors.primary,
+    opacity: 0.1,
   },
   logoContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 130,
+    height: 130,
+    borderRadius: 28,
     backgroundColor: Colors.white,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 20,
-    shadowColor: Colors.primary + '40',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
+    ...Platform.select({
+      ios: {
+        shadowColor: Colors.primary,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.12,
+        shadowRadius: 20,
+      },
+      android: {
+        elevation: 12,
+      },
+    }),
     borderWidth: 1,
     borderColor: Colors.primary + '10',
   },
   logoImage: {
-    width: 80,
-    height: 80,
-  },
-  logoFallback: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: Colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logoText: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: Colors.white,
-    letterSpacing: 1,
+    width: 85,
+    height: 85,
   },
   appInfoContainer: {
     alignItems: 'center',
-    marginBottom: 50,
+    marginBottom: 40,
+    paddingHorizontal: 20,
   },
   appName: {
-    fontSize: 52,
+    fontSize: 56,
     fontWeight: '800',
     color: Colors.primary,
-    letterSpacing: 1.5,
-    marginBottom: 8,
+    letterSpacing: -0.5,
+    marginBottom: 4,
+    fontFamily: 'System',
   },
   appTagline: {
-    fontSize: 18,
+    fontSize: 19,
     fontWeight: '600',
     color: Colors.secondary,
-    letterSpacing: 1,
-    marginBottom: 16,
+    letterSpacing: 0.8,
+    marginBottom: 18,
+    textTransform: 'uppercase',
   },
   divider: {
-    width: 60,
-    height: 3,
+    width: 50,
+    height: 2,
     backgroundColor: Colors.primary,
-    borderRadius: 2,
-    marginVertical: 16,
+    borderRadius: 1,
+    marginVertical: 14,
   },
   appDescription: {
-    fontSize: 14,
-    color: Colors.grey,
+    fontSize: 15,
+    color: Colors.gray,
     textAlign: 'center',
-    maxWidth: 300,
-    lineHeight: 20,
+    lineHeight: 22,
+    fontFamily: 'System',
   },
   loadingContainer: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 30,
     width: '100%',
   },
   loadingBar: {
-    width: '80%',
+    width: '90%',
     height: 4,
-    backgroundColor: Colors.lightGrey,
+    backgroundColor: Colors.lightGray,
     borderRadius: 2,
     overflow: 'hidden',
-    marginBottom: 20,
+    marginBottom: 22,
   },
   loadingProgress: {
-    width: '30%',
     height: '100%',
     backgroundColor: Colors.primary,
     borderRadius: 2,
+    transform: [{ scaleX: 0.98 }], // Prevent pixel gaps
   },
   loadingText: {
     fontSize: 14,
-    color: Colors.grey,
-    marginBottom: 20,
+    color: Colors.gray,
+    marginBottom: 18,
     fontWeight: '500',
+    fontFamily: 'System',
   },
   dotsContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
+    alignItems: 'flex-end',
+    height: 20,
+    gap: 8,
   },
   animatedDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: Colors.primary,
   },
   footer: {
     position: 'absolute',
-    bottom: 40,
+    bottom: 30,
     alignItems: 'center',
-  },
-  footerContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
   },
   versionText: {
-    fontSize: 12,
+    fontSize: 11,
     color: Colors.primary,
-    fontWeight: '500',
-  },
-  dotSeparator: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: Colors.primary,
-    marginHorizontal: 8,
-  },
-  copyrightText: {
-    fontSize: 12,
-    color: Colors.grey,
+    fontWeight: '600',
+    marginBottom: 4,
+    letterSpacing: 0.5,
   },
   poweredBy: {
-    fontSize: 10,
-    color: Colors.lightGrey,
-    letterSpacing: 0.5,
+    fontSize: 11,
+    color: Colors.gray,
+    letterSpacing: 0.3,
   },
 });
 

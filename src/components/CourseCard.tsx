@@ -49,28 +49,19 @@ export default function CourseCard({
   // Fixed height for all cards
   const cardHeight = 400;
 
-  const handleCardPress = () => {
-    // If parent provides onPress handler, use it
+const handleCardPress = () => {
     if (onPress) {
       onPress(course.id);
     } else {
-      // Otherwise, navigate to course detail or free courses screen
-      // Uncomment if you have a CourseDetailScreen
-      // navigation.navigate('CourseDetailScreen', { courseId: course.id });
-      
-      // Navigate to FreeCoursesScreen as fallback
-      navigation.navigate('FreeCoursesScreen');
+      navigation.navigate('FreeCoursesDetailScreen', { courseId: course.id });
     }
   };
 
   const handleAccessButtonPress = () => {
     if (course.type === 'live') {
-      // For live courses, you might want different behavior
-      // navigation.navigate('LiveClassScreen', { courseId: course.id });
       console.log('Join live course:', course.id);
     } else {
-      // For recorded/free courses, navigate to FreeCoursesScreen
-      navigation.navigate('FreeCoursesScreen');
+      navigation.navigate('FreeCoursesDetailScreen', { courseId: course.id });
     }
   };
 

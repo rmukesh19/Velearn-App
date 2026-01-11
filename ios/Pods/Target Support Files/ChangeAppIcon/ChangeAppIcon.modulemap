@@ -1,0 +1,6 @@
+module ChangeAppIcon {
+  umbrella header "ChangeAppIcon-umbrella.h"
+
+  export *
+  module * { export * }
+}

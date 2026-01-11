@@ -301,12 +301,12 @@ const VisitWebsiteScreen: React.FC = () => {
       </ScrollView>
 
       {/* Floating Action Button */}
-      <TouchableOpacity 
+      {/* <TouchableOpacity 
         style={styles.fab}
         onPress={() => handleOpenLink('https://velearn.com')}
       >
         <Icon name="earth" size={24} color={Colors.white} />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </SafeAreaView>
   );
 };

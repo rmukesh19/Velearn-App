@@ -147,7 +147,7 @@ const OnlineCoursesScreen = ({ navigation }: any) => {
                   <Text style={styles.categoryBadgeText}>{course.category}</Text>
                 </View>
                 <View style={styles.footerRight}>
-                  <Text style={styles.coursePrice}>{course.price}</Text>
+                
                   <TouchableOpacity style={styles.startButton}>
                     <Text style={styles.startButtonText}>Start Learning</Text>
                   </TouchableOpacity>

@@ -8,10 +8,14 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Image,
-  FlatList 
+  FlatList,
+  Platform,
+  Dimensions 
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Colors } from '../../../theme/colors';
+
+const { width, height } = Dimensions.get('window');
 
 interface Webinar {
   id: string;
@@ -124,13 +128,16 @@ const WebinarsScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.container}>
-        
-
+      <ScrollView 
+        style={styles.container}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <ScrollView 
           horizontal 
           showsHorizontalScrollIndicator={false}
           style={styles.categoryContainer}
+          contentContainerStyle={styles.categoryContentContainer}
         >
           {categories.map(category => (
             <TouchableOpacity
@@ -185,6 +192,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  scrollContent: {
+    paddingBottom: Platform.OS === 'ios' ? 40 : 60,
+    flexGrow: 1,
+  },
   header: {
     padding: 24,
     backgroundColor: Colors.white,
@@ -202,8 +213,12 @@ const styles = StyleSheet.create({
     color: Colors.gray,
   },
   categoryContainer: {
-    paddingHorizontal: 16,
     marginVertical: 16,
+    flexGrow: 0,
+  },
+  categoryContentContainer: {
+    paddingHorizontal: 16,
+    paddingRight: 32,
   },
   categoryChip: {
     paddingHorizontal: 20,
@@ -232,19 +247,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     marginBottom: 16,
+    flexWrap: 'wrap',
   },
   scheduleTitle: {
     fontSize: 20,
     fontWeight: '600',
     color: Colors.black,
+    flexShrink: 1,
   },
   webinarCount: {
     fontSize: 14,
     color: Colors.gray,
+    marginLeft: 8,
   },
   webinarList: {
     paddingHorizontal: 16,
-    paddingBottom: 20,
+    paddingBottom: 8,
   },
   webinarCard: {
     backgroundColor: Colors.white,
@@ -261,6 +279,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 12,
+    flexWrap: 'wrap',
   },
   categoryBadge: {
     backgroundColor: `${Colors.primary}15`,
@@ -302,11 +321,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
+    flexWrap: 'wrap',
   },
   detailText: {
     fontSize: 14,
     color: Colors.gray,
     marginLeft: 8,
+    flexShrink: 1,
   },
   webinarActions: {
     flexDirection: 'row',
@@ -322,6 +343,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     flex: 1,
     marginRight: 12,
+    justifyContent: 'center',
   },
   registerButtonText: {
     color: Colors.white,
@@ -338,6 +360,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     flex: 1,
     marginRight: 12,
+    justifyContent: 'center',
   },
   registeredButtonText: {
     color: Colors.primary,
@@ -354,6 +377,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: Colors.secondary,
     marginHorizontal: 16,
+    marginTop: 8,
     marginBottom: 24,
     paddingVertical: 14,
     borderRadius: 16,

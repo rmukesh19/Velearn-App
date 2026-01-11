@@ -9,7 +9,7 @@ import {
   SafeAreaView
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { Colors } from '../theme/colors';
+import { Colors } from '../../theme/colors';
 
 // Mock data
 const userData = {
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 24,
     fontWeight: '700',
-    color: Colors.dark,
+    color: Colors.primary,
   },
   email: {
     fontSize: 14,
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   editButtonText: {
-    color: Colors.dark,
+    color: Colors.lightGray,
     fontWeight: '600',
   },
 
@@ -196,12 +196,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: Colors.dark,
+    color: Colors.primary,
     marginBottom: 8,
   },
   bioText: {
     fontSize: 14,
-    color: Colors.dark,
+    color: Colors.primary,
     lineHeight: 20,
   },
 
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   menuText: {
     flex: 1,
     fontSize: 16,
-    color: Colors.dark,
+    color: Colors.primary,
   },
 
   // Logout Button

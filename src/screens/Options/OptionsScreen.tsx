@@ -258,18 +258,28 @@ const OptionsScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* App Info */}
-        <View style={styles.appInfoContainer}>
-          <View style={styles.appLogo}>
-            <Icon name="school-outline" size={28} color={Colors.primary} />
-            <View style={styles.appLogoBadge}>
-              <Icon name="checkmark" size={10} color={Colors.white} />
-            </View>
-          </View>
-          <Text style={styles.appName}>VeLearn</Text>
-          <Text style={styles.versionNumber}>Version 1.0.0 • Build 2025.01</Text>
-          <Text style={styles.copyrightText}>© 2025 VeLearn</Text>
-        </View>
+       {/* App Info */}
+<View style={styles.appInfoContainer}>
+  <View style={styles.appLogo}>
+    <Image
+      source={require('../../images/logo/favicon.png')}
+      style={styles.faviconImage}
+      resizeMode="contain"
+    />
+    <View style={styles.appLogoBadge}>
+      <Icon name="checkmark" size={10} color={Colors.white} />
+    </View>
+  </View>
+
+  
+  <Text style={styles.versionNumber}>
+    Version 1.0.0 • Build 2025.01
+  </Text>
+  <Text style={styles.copyrightText}>
+    © 2025 VeLearn
+  </Text>
+</View>
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -485,13 +495,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: Colors.white,
   },
-  appName: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: Colors.black,
-    marginBottom: 4,
-    letterSpacing: -0.5,
-  },
+
   versionNumber: {
     fontSize: 13,
     color: Colors.gray,
@@ -502,6 +506,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Colors.lightGray,
     fontWeight: '400',
+  },
+  faviconImage: {
+    width: 60,
+    height: 60,
   },
 });
 

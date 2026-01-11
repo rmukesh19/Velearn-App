@@ -4,17 +4,18 @@ import {
   View, 
   Text, 
   StyleSheet, 
-  ScrollView, 
-  SafeAreaView,
+  ScrollView,
   TouchableOpacity,
   Switch,
-  
-  SectionList 
+  Platform,
+  StatusBar,
+  Dimensions,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Colors } from '../../../theme/colors';
 
-
+const { height, width } = Dimensions.get('window');
 
 interface NotificationItem {
   id: string;
@@ -26,6 +27,7 @@ interface NotificationItem {
 }
 
 const NotificationsScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
   const [enabled, setEnabled] = React.useState(true);
   const [pushEnabled, setPushEnabled] = React.useState(true);
   const [emailEnabled, setEmailEnabled] = React.useState(true);
@@ -63,6 +65,14 @@ const NotificationsScreen: React.FC = () => {
       read: true,
       type: 'promotion',
     },
+    {
+      id: '5',
+      title: 'Achievement Unlocked',
+      description: 'You completed 10 courses this month!',
+      time: '3 days ago',
+      read: true,
+      type: 'social',
+    },
   ];
 
   const getIconByType = (type: string) => {
@@ -95,8 +105,15 @@ const NotificationsScreen: React.FC = () => {
     }
   };
 
-  const renderNotification = ({ item }: { item: NotificationItem }) => (
-    <TouchableOpacity style={styles.notificationItem}>
+  const renderNotification = ({ item, index }: { item: NotificationItem; index: number }) => (
+    <TouchableOpacity 
+      key={item.id}
+      style={[
+        styles.notificationItem,
+        index === notifications.length - 1 && { borderBottomWidth: 0 }
+      ]}
+      activeOpacity={0.7}
+    >
       <View style={[
         styles.notificationIcon,
         { backgroundColor: `${getColorByType(item.type)}15` }
@@ -125,17 +142,24 @@ const NotificationsScreen: React.FC = () => {
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.container}>
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.white} />
       
-
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: Math.max(insets.bottom, 20) + 20 }
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.settingsSection}>
           <Text style={styles.sectionTitle}>Notification Settings</Text>
           <View style={styles.settingsCard}>
             <View style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <Icon name="notifications-outline" size={22} color={Colors.primary} />
-                <View>
+                <View style={styles.settingTextContainer}>
                   <Text style={styles.settingText}>Push Notifications</Text>
                   <Text style={styles.settingSubtext}>Receive push notifications</Text>
                 </View>
@@ -150,7 +174,7 @@ const NotificationsScreen: React.FC = () => {
             <View style={styles.settingItem}>
               <View style={styles.settingLeft}>
                 <Icon name="mail-outline" size={22} color={Colors.secondary} />
-                <View>
+                <View style={styles.settingTextContainer}>
                   <Text style={styles.settingText}>Email Notifications</Text>
                   <Text style={styles.settingSubtext}>Receive notifications via email</Text>
                 </View>
@@ -162,10 +186,10 @@ const NotificationsScreen: React.FC = () => {
               />
             </View>
 
-            <View style={styles.settingItem}>
+            <View style={[styles.settingItem, { borderBottomWidth: 0 }]}>
               <View style={styles.settingLeft}>
                 <Icon name="volume-high-outline" size={22} color={Colors.success} />
-                <View>
+                <View style={styles.settingTextContainer}>
                   <Text style={styles.settingText}>Sound</Text>
                   <Text style={styles.settingSubtext}>Play sound for notifications</Text>
                 </View>
@@ -180,68 +204,80 @@ const NotificationsScreen: React.FC = () => {
         </View>
 
         <View style={styles.notificationsSection}>
-          <Text style={styles.sectionTitle}>Recent Notifications</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Recent Notifications</Text>
+            <TouchableOpacity style={styles.markAllButton}>
+              <Text style={styles.markAllText}>Mark all read</Text>
+            </TouchableOpacity>
+          </View>
           <View style={styles.notificationsCard}>
-            {notifications.map(notification => renderNotification({ item: notification }))}
+            {notifications.map((notification, index) => 
+              renderNotification({ item: notification, index })
+            )}
           </View>
         </View>
 
-        <TouchableOpacity style={styles.clearButton}>
+        <TouchableOpacity 
+          style={styles.clearButton}
+          activeOpacity={0.7}
+        >
           <Icon name="trash-outline" size={18} color={Colors.error} />
           <Text style={styles.clearButtonText}>Clear All Notifications</Text>
         </TouchableOpacity>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
     backgroundColor: Colors.background,
   },
-  container: {
+  scrollView: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 24,
-    backgroundColor: Colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.lightGray,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: Colors.black,
-  },
-  markAllButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    backgroundColor: `${Colors.primary}10`,
-    borderRadius: 12,
-  },
-  markAllText: {
-    color: Colors.primary,
-    fontSize: 14,
-    fontWeight: '600',
+  scrollContent: {
+    flexGrow: 1,
   },
   settingsSection: {
     padding: 16,
+    paddingTop: 20,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
   },
   sectionTitle: {
     fontSize: 14,
     fontWeight: '600',
     color: Colors.gray,
-    marginBottom: 12,
     textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  markAllButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: `${Colors.primary}10`,
+    borderRadius: 12,
+  },
+  markAllText: {
+    color: Colors.primary,
+    fontSize: 12,
+    fontWeight: '600',
   },
   settingsCard: {
     backgroundColor: Colors.white,
     borderRadius: 16,
     overflow: 'hidden',
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+    marginTop: 12,
   },
   settingItem: {
     flexDirection: 'row',
@@ -255,17 +291,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+    marginRight: 12,
+  },
+  settingTextContainer: {
+    flex: 1,
+    marginLeft: 12,
   },
   settingText: {
     fontSize: 16,
+    fontWeight: '500',
     color: Colors.black,
-    marginLeft: 12,
+    marginBottom: 2,
   },
   settingSubtext: {
     fontSize: 12,
     color: Colors.gray,
-    marginLeft: 12,
-    marginTop: 2,
   },
   notificationsSection: {
     padding: 16,
@@ -274,6 +314,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderRadius: 16,
     overflow: 'hidden',
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   notificationItem: {
     flexDirection: 'row',

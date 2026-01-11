@@ -20,9 +20,11 @@
 
   dispatch_once(&nativeComponentsToken, ^{
     thirdPartyComponents = @{
+		@"RNCSlider": NSClassFromString(@"RNCSliderComponentView"), // @react-native-community/slider
 		@"RNGestureHandlerButton": NSClassFromString(@"RNGestureHandlerButtonComponentView"), // react-native-gesture-handler
 		@"RNCSafeAreaProvider": NSClassFromString(@"RNCSafeAreaProviderComponentView"), // react-native-safe-area-context
 		@"RNCSafeAreaView": NSClassFromString(@"RNCSafeAreaViewComponentView"), // react-native-safe-area-context
+		@"RNCWebView": NSClassFromString(@"RNCWebView"), // react-native-webview
 		@"RNSFullWindowOverlay": NSClassFromString(@"RNSFullWindowOverlay"), // react-native-screens
 		@"RNSModalScreen": NSClassFromString(@"RNSModalScreen"), // react-native-screens
 		@"RNSScreenContainer": NSClassFromString(@"RNSScreenContainerView"), // react-native-screens

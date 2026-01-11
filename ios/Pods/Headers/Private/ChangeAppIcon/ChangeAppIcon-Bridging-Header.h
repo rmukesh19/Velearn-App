@@ -1,0 +1,1 @@
+../../../../../node_modules/@linhlm23496/react-native-change-app-icon/ios/ChangeAppIcon-Bridging-Header.h

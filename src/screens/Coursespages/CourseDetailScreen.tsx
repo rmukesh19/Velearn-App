@@ -463,7 +463,7 @@ const styles = StyleSheet.create({
   },
   instructorRole: {
     fontSize: 14,
-    color: Colors.darkGray,
+    color: Colors.gray,
   },
   followButton: {
     flexDirection: 'row',
@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
     paddingRight: 20,
   },
   tag: {
-    backgroundColor: Colors.lightPrimary,
+    backgroundColor: Colors.background,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
@@ -569,7 +569,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 16,
-    color: Colors.darkGray,
+    color: Colors.gray,
     lineHeight: 24,
   },
   learnItem: {
@@ -584,7 +584,7 @@ const styles = StyleSheet.create({
   learnText: {
     flex: 1,
     fontSize: 16,
-    color: Colors.darkGray,
+    color: Colors.gray,
     lineHeight: 22,
   },
   lessonItem: {

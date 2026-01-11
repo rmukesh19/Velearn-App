@@ -1,19 +1,17 @@
-// screens/BlogsScreen.tsx
 import React, { useState } from 'react';
 import { 
   View, 
   Text, 
   StyleSheet, 
-  ScrollView, 
-  
+  ScrollView,
   TouchableOpacity,
   Image,
-  FlatList,
   Dimensions,
   StatusBar,
-  Platform 
+  Platform,
+  FlatList 
 } from 'react-native';
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Colors } from '../../../theme/colors';
 
@@ -37,6 +35,7 @@ interface Blog {
 }
 
 const BlogsScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [bookmarkedBlogs, setBookmarkedBlogs] = useState<string[]>(['1', '3']);
 
@@ -135,13 +134,24 @@ const BlogsScreen: React.FC = () => {
     );
   };
 
+  const getCategoryColor = (category: string) => {
+    const colors = {
+      technology: Colors.primary + '20',
+      design: Colors.secondary + '20',
+      business: Colors.success + '20',
+      education: Colors.warning + '20',
+      health: Colors.danger + '20',
+      lifestyle: Colors.info + '20',
+    };
+    return colors[category as keyof typeof colors] || Colors.lightGray;
+  };
+
   const renderFeaturedCard = ({ item }: { item: Blog }) => (
     <TouchableOpacity 
-      style={[styles.featuredCard, isTablet && styles.featuredCardTablet]}
+      style={styles.featuredCard}
       activeOpacity={0.9}
     >
       <Image source={{ uri: item.image }} style={styles.featuredImage} />
-      
       <View style={styles.featuredGradient}>
         <View style={styles.featuredContent}>
           <View style={styles.featuredHeader}>
@@ -152,6 +162,7 @@ const BlogsScreen: React.FC = () => {
             <TouchableOpacity 
               style={styles.featuredBookmark}
               onPress={() => toggleBookmark(item.id)}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <Icon 
                 name={bookmarkedBlogs.includes(item.id) ? "bookmark" : "bookmark-outline"} 
@@ -170,10 +181,8 @@ const BlogsScreen: React.FC = () => {
               <Text style={styles.featuredAuthorText}>{item.author}</Text>
             </View>
             <View style={styles.featuredStats}>
-              <View style={styles.statItem}>
-                <Icon name="time-outline" size={14} color={Colors.lightGray} />
-                <Text style={styles.statText}>{item.readTime}</Text>
-              </View>
+              <Icon name="time-outline" size={14} color={Colors.lightGray} />
+              <Text style={styles.statText}>{item.readTime}</Text>
             </View>
           </View>
         </View>
@@ -183,7 +192,10 @@ const BlogsScreen: React.FC = () => {
 
   const renderBlogCard = ({ item }: { item: Blog }) => (
     <TouchableOpacity 
-      style={[styles.blogCard, isTablet && styles.blogCardTablet]}
+      style={[
+        styles.blogCard, 
+        isTablet && styles.blogCardTablet
+      ]}
       activeOpacity={0.9}
     >
       <View style={styles.blogImageContainer}>
@@ -191,6 +203,7 @@ const BlogsScreen: React.FC = () => {
         <TouchableOpacity 
           style={styles.blogBookmark}
           onPress={() => toggleBookmark(item.id)}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
           <Icon 
             name={bookmarkedBlogs.includes(item.id) ? "bookmark" : "bookmark-outline"} 
@@ -237,44 +250,43 @@ const BlogsScreen: React.FC = () => {
     </TouchableOpacity>
   );
 
-  const getCategoryColor = (category: string) => {
-    const colors = {
-      technology: Colors.primary + '20',
-      design: Colors.secondary + '20',
-      business: Colors.success + '20',
-      education: Colors.warning + '20',
-      health: Colors.danger + '20',
-      lifestyle: Colors.info + '20',
-    };
-    return colors[category as keyof typeof colors] || Colors.lightGray;
-  };
+  // Dynamic bottom padding calculation
+  const bottomPadding = Math.max(insets.bottom, 20) + 20;
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={Colors.white} />
       
       <ScrollView 
-        style={styles.container}
+        style={styles.scrollView}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: bottomPadding }
+        ]}
+        nestedScrollEnabled={true}
       >
         {/* Header */}
-        <View style={styles.header}>
-          <View>
+        <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+          <View style={styles.headerTextContainer}>
             <Text style={styles.headerTitle}>Discover Articles</Text>
-            <Text style={styles.headerSubtitle}>Stay updated with the latest insights</Text>
+            <Text style={styles.headerSubtitle}>Stay updated with latest insights</Text>
           </View>
-          <TouchableOpacity style={styles.searchButton}>
+          <TouchableOpacity 
+            style={styles.searchButton}
+            hitSlop={15}
+          >
             <Icon name="search-outline" size={22} color={Colors.gray} />
           </TouchableOpacity>
         </View>
 
-        {/* Categories */}
+        {/* Categories - Horizontal Scroll */}
         <View style={styles.categoriesWrapper}>
           <ScrollView 
             horizontal 
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.categoriesContainer}
+            nestedScrollEnabled={true}
           >
             {categories.map(category => (
               <TouchableOpacity
@@ -284,6 +296,7 @@ const BlogsScreen: React.FC = () => {
                   selectedCategory === category.id && styles.categoryButtonActive
                 ]}
                 onPress={() => setSelectedCategory(category.id)}
+                activeOpacity={0.8}
               >
                 <Icon 
                   name={category.icon} 
@@ -301,7 +314,7 @@ const BlogsScreen: React.FC = () => {
           </ScrollView>
         </View>
 
-        {/* Featured Section */}
+        {/* Featured Section - Side Scrollable Fixed */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Featured Today</Text>
@@ -309,19 +322,25 @@ const BlogsScreen: React.FC = () => {
               <Text style={styles.seeAllText}>See All</Text>
             </TouchableOpacity>
           </View>
-          <FlatList
+          
+          {/* Using ScrollView instead of FlatList for smoother horizontal scroll inside vertical ScrollView */}
+          <ScrollView
             horizontal
-            data={blogs.filter(blog => blog.featured)}
-            renderItem={renderFeaturedCard}
-            keyExtractor={item => item.id}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.featuredList}
-            snapToInterval={isTablet ? SCREEN_WIDTH * 0.7 + 16 : SCREEN_WIDTH * 0.85 + 16}
             decelerationRate="fast"
-          />
+            snapToInterval={isTablet ? (SCREEN_WIDTH * 0.7 + 20) : (SCREEN_WIDTH * 0.85 + 20)}
+            snapToAlignment="center"
+          >
+            {blogs.filter(blog => blog.featured).map(item => (
+              <View key={item.id} style={{ marginRight: 16 }}>
+                {renderFeaturedCard({ item })}
+              </View>
+            ))}
+          </ScrollView>
         </View>
 
-        {/* All Articles */}
+        {/* All Articles - Responsive Grid */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <View>
@@ -334,56 +353,48 @@ const BlogsScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
           
-          {isTablet ? (
-            <FlatList
-              data={filteredBlogs}
-              renderItem={renderBlogCard}
-              keyExtractor={item => item.id}
-              numColumns={2}
-              scrollEnabled={false}
-              columnWrapperStyle={styles.tabletRow}
-            />
-          ) : (
-            <FlatList
-              data={filteredBlogs}
-              renderItem={renderBlogCard}
-              keyExtractor={item => item.id}
-              scrollEnabled={false}
-              contentContainerStyle={styles.blogList}
-            />
-          )}
+          {/* Responsive Layout Logic: FlexWrap for Tablet Grid */}
+          <View style={[
+            styles.blogListWrapper,
+            isTablet && styles.blogGridWrapper
+          ]}>
+            {filteredBlogs.map((item) => (
+              <View key={item.id} style={isTablet ? styles.gridItem : { marginBottom: 16 }}>
+                {renderBlogCard({ item })}
+              </View>
+            ))}
+          </View>
         </View>
       </ScrollView>
-
-      {/* Floating Action Button */}
-      <TouchableOpacity style={styles.fab}>
-        <Icon name="add" size={24} color={Colors.white} />
-      </TouchableOpacity>
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
     backgroundColor: Colors.background,
   },
-  container: {
+  scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 100,
+    flexGrow: 1,
   },
+  
+  // Header
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'ios' ? 10 : 20,
     paddingBottom: 20,
     backgroundColor: Colors.white,
     borderBottomWidth: 1,
     borderBottomColor: Colors.lightGray + '30',
+  },
+  headerTextContainer: {
+    flex: 1,
   },
   headerTitle: {
     fontSize: isSmallDevice ? 24 : 28,
@@ -392,7 +403,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   headerSubtitle: {
-    fontSize: isSmallDevice ? 14 : 16,
+    fontSize: isSmallDevice ? 13 : 15,
     color: Colors.gray,
   },
   searchButton: {
@@ -403,6 +414,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
+  // Categories
   categoriesWrapper: {
     backgroundColor: Colors.white,
     paddingVertical: 16,
@@ -415,20 +428,20 @@ const styles = StyleSheet.create({
   categoryButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: isTablet ? 24 : 20,
-    paddingVertical: isTablet ? 12 : 10,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
     backgroundColor: Colors.lightGray + '10',
     borderRadius: 25,
     marginRight: 12,
     borderWidth: 1,
-    borderColor: Colors.lightGray + '30',
+    borderColor: 'transparent',
   },
   categoryButtonActive: {
     backgroundColor: Colors.primary,
     borderColor: Colors.primary,
   },
   categoryButtonText: {
-    fontSize: isSmallDevice ? 13 : 14,
+    fontSize: 14,
     fontWeight: '600',
     color: Colors.gray,
     marginLeft: 8,
@@ -436,6 +449,8 @@ const styles = StyleSheet.create({
   categoryButtonTextActive: {
     color: Colors.white,
   },
+
+  // Sections
   section: {
     marginTop: 24,
   },
@@ -447,14 +462,14 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: isSmallDevice ? 18 : 22,
+    fontSize: 20,
     fontWeight: '700',
     color: Colors.black,
   },
   sectionSubtitle: {
-    fontSize: 14,
+    fontSize: 13,
     color: Colors.gray,
-    marginTop: 4,
+    marginTop: 2,
   },
   seeAllText: {
     fontSize: 14,
@@ -475,26 +490,23 @@ const styles = StyleSheet.create({
     color: Colors.gray,
     marginLeft: 6,
   },
+
+  // Featured Horizontal List
   featuredList: {
     paddingLeft: 20,
-    paddingRight: 4,
+    paddingRight: 20, // Ensure last card isn't cut off
   },
   featuredCard: {
-    width: SCREEN_WIDTH * 0.85,
-    height: SCREEN_HEIGHT * 0.35,
-    marginRight: 16,
-    borderRadius: 20,
+    width: isTablet ? SCREEN_WIDTH * 0.7 : SCREEN_WIDTH * 0.85,
+    height: isTablet ? SCREEN_HEIGHT * 0.4 : SCREEN_HEIGHT * 0.32,
+    borderRadius: 24,
     overflow: 'hidden',
     backgroundColor: Colors.white,
     shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
-    shadowRadius: 24,
+    shadowRadius: 20,
     elevation: 8,
-  },
-  featuredCardTablet: {
-    width: SCREEN_WIDTH * 0.7,
-    height: SCREEN_HEIGHT * 0.4,
   },
   featuredImage: {
     width: '100%',
@@ -503,7 +515,13 @@ const styles = StyleSheet.create({
   },
   featuredGradient: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundGradient: {
+      colors: ['rgba(0,0,0,0)', 'rgba(0,0,0,0.8)'],
+      start: { x: 0, y: 0 },
+      end: { x: 0, y: 1 }
+    },
+    // Fallback for gradient if module isn't used, standard opacity
+    backgroundColor: 'rgba(0,0,0,0.4)', 
     justifyContent: 'flex-end',
     padding: 20,
   },
@@ -543,11 +561,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: Colors.white,
     marginBottom: 8,
-    lineHeight: isSmallDevice ? 24 : 28,
+    lineHeight: 28,
   },
   featuredExcerpt: {
     fontSize: isSmallDevice ? 13 : 14,
-    color: Colors.lightGray,
+    color: 'rgba(255,255,255,0.9)',
     marginBottom: 16,
     lineHeight: 20,
   },
@@ -570,36 +588,41 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  statItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   statText: {
     fontSize: 12,
     color: Colors.lightGray,
     marginLeft: 4,
   },
-  blogList: {
+
+  // Blog List (Responsive)
+  blogListWrapper: {
     paddingHorizontal: 20,
   },
+  // Tablet Grid Layout
+  blogGridWrapper: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 20,
+    justifyContent: 'space-between',
+  },
+  gridItem: {
+    width: '48%', // Takes roughly half width in tablet grid
+    marginBottom: 16,
+  },
+
   blogCard: {
     backgroundColor: Colors.white,
-    borderRadius: 16,
-    marginBottom: 16,
+    borderRadius: 20,
+    overflow: 'hidden',
     shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.06,
     shadowRadius: 12,
     elevation: 3,
-    overflow: 'hidden',
   },
   blogCardTablet: {
-    flex: 1,
-    margin: 8,
-    maxWidth: '48%',
-  },
-  tabletRow: {
-    justifyContent: 'space-between',
+    // Specific overrides for grid items if needed, usually handled by container width
+    height: '100%', 
   },
   blogImageContainer: {
     position: 'relative',
@@ -634,12 +657,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   categoryBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
   categoryBadgeText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
     color: Colors.primary,
     textTransform: 'uppercase',
@@ -650,7 +673,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   blogCardTitle: {
-    fontSize: isSmallDevice ? 16 : 18,
+    fontSize: isSmallDevice ? 16 : 17,
     fontWeight: '700',
     color: Colors.black,
     marginBottom: 8,
@@ -686,7 +709,7 @@ const styles = StyleSheet.create({
     color: Colors.black,
   },
   blogDate: {
-    fontSize: 12,
+    fontSize: 11,
     color: Colors.gray,
     marginTop: 2,
   },
@@ -697,29 +720,13 @@ const styles = StyleSheet.create({
   stat: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 16,
+    marginLeft: 12,
   },
   statCount: {
     fontSize: 12,
     color: Colors.gray,
     marginLeft: 4,
     fontWeight: '500',
-  },
-  fab: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: Colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
   },
 });
 

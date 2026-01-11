@@ -8,13 +8,15 @@ import {
   Switch,
   StatusBar,
   Dimensions,
+  Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 // Define navigation types
 type SettingsStackParamList = {
@@ -36,8 +38,18 @@ type SettingsStackParamList = {
 
 type SettingsScreenNavigationProp = NativeStackNavigationProp<SettingsStackParamList>;
 
+// Device detection helper
+const hasNotch = (): boolean => {
+  if (Platform.OS === 'android') {
+    return StatusBar.currentHeight ? StatusBar.currentHeight > 24 : false;
+  }
+  // iOS devices with notch
+  return Platform.OS === 'ios' && (height >= 812 || width >= 812);
+};
+
 const SettingsScreen = () => {
   const navigation = useNavigation<SettingsScreenNavigationProp>();
+  const insets = useSafeAreaInsets();
   
   const [settings, setSettings] = useState({
     notifications: true,
@@ -265,13 +277,16 @@ const SettingsScreen = () => {
     );
   };
 
+  // Calculate header padding
+  const headerPaddingTop = Math.max(insets.top, Platform.OS === 'ios' ? 44 : 20) + 16;
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#667eea" />
       
       <LinearGradient
         colors={['#667eea', '#764ba2']}
-        style={styles.header}
+        style={[styles.header, { paddingTop: headerPaddingTop }]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
       >
@@ -292,7 +307,10 @@ const SettingsScreen = () => {
 
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: Math.max(insets.bottom, 20) + 20 }
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {settingsSections.map((section, index) => (
@@ -355,7 +373,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8f9fa',
   },
   header: {
-    paddingTop: 60,
     paddingBottom: 30,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 30,
@@ -398,7 +415,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 20,
-    paddingBottom: 40,
   },
   section: {
     marginBottom: 25,
@@ -479,6 +495,11 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1.5,
     borderColor: '#667eea',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   supportText: {
     color: '#667eea',
@@ -495,6 +516,11 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1.5,
     borderColor: '#ff3b30',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   signOutText: {
     color: '#ff3b30',

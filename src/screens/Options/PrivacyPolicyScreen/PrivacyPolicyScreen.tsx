@@ -4,16 +4,31 @@ import {
   View, 
   Text, 
   StyleSheet, 
-  ScrollView, 
-  SafeAreaView,
+  ScrollView,
   TouchableOpacity,
-  Switch 
+  Switch,
+  Platform,
+  StatusBar,
+  Dimensions,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Colors } from '../../../theme/colors';
 
+const { height, width } = Dimensions.get('window');
+
+// Device detection helper
+const hasNotch = (): boolean => {
+  if (Platform.OS === 'android') {
+    return StatusBar.currentHeight ? StatusBar.currentHeight > 24 : false;
+  }
+  // iOS devices with notch
+  return Platform.OS === 'ios' && (height >= 812 || width >= 812);
+};
 
 const PrivacyPolicyScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
+  
   const [dataCollection, setDataCollection] = useState(true);
   const [personalizedAds, setPersonalizedAds] = useState(false);
   const [marketingEmails, setMarketingEmails] = useState(true);
@@ -91,10 +106,22 @@ Despite our efforts, no method of transmission over the Internet is 100% secure.
     // Implement account deletion flow
   };
 
+  // Calculate header padding
+  const headerPaddingTop = Math.max(insets.top, Platform.OS === 'ios' ? 44 : 20) + 16;
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.container}>
-        <View style={styles.header}>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={Colors.primary} />
+      
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: Math.max(insets.bottom, 20) + 20 }
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={[styles.header, { paddingTop: headerPaddingTop }]}>
           <View style={styles.headerContent}>
             <Icon name="shield-checkmark-outline" size={32} color={Colors.white} />
             <Text style={styles.title}>Privacy Policy</Text>
@@ -125,7 +152,7 @@ Despite our efforts, no method of transmission over the Internet is 100% secure.
             <View style={styles.controlItem}>
               <View style={styles.controlLeft}>
                 <Icon name="analytics-outline" size={22} color={Colors.primary} />
-                <View>
+                <View style={styles.controlTextContainer}>
                   <Text style={styles.controlText}>Data Collection</Text>
                   <Text style={styles.controlDescription}>Allow data collection for improvements</Text>
                 </View>
@@ -142,7 +169,7 @@ Despite our efforts, no method of transmission over the Internet is 100% secure.
             <View style={styles.controlItem}>
               <View style={styles.controlLeft}>
                 <Icon name="megaphone-outline" size={22} color={Colors.secondary} />
-                <View>
+                <View style={styles.controlTextContainer}>
                   <Text style={styles.controlText}>Personalized Ads</Text>
                   <Text style={styles.controlDescription}>Show relevant advertisements</Text>
                 </View>
@@ -159,7 +186,7 @@ Despite our efforts, no method of transmission over the Internet is 100% secure.
             <View style={styles.controlItem}>
               <View style={styles.controlLeft}>
                 <Icon name="mail-outline" size={22} color={Colors.success} />
-                <View>
+                <View style={styles.controlTextContainer}>
                   <Text style={styles.controlText}>Marketing Emails</Text>
                   <Text style={styles.controlDescription}>Receive product updates and offers</Text>
                 </View>
@@ -190,7 +217,11 @@ Despite our efforts, no method of transmission over the Internet is 100% secure.
         <View style={styles.actionsSection}>
           <Text style={styles.actionsTitle}>Your Privacy Rights</Text>
           
-          <TouchableOpacity style={styles.actionButton} onPress={handleDownloadData}>
+          <TouchableOpacity 
+            style={styles.actionButton} 
+            onPress={handleDownloadData}
+            activeOpacity={0.7}
+          >
             <Icon name="download-outline" size={20} color={Colors.primary} />
             <View style={styles.actionContent}>
               <Text style={styles.actionTitle}>Download Your Data</Text>
@@ -199,7 +230,10 @@ Despite our efforts, no method of transmission over the Internet is 100% secure.
             <Icon name="chevron-forward" size={20} color={Colors.gray} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            activeOpacity={0.7}
+          >
             <Icon name="eye-outline" size={20} color={Colors.secondary} />
             <View style={styles.actionContent}>
               <Text style={styles.actionTitle}>View Data History</Text>
@@ -211,6 +245,7 @@ Despite our efforts, no method of transmission over the Internet is 100% secure.
           <TouchableOpacity 
             style={[styles.actionButton, styles.dangerAction]}
             onPress={handleDeleteAccount}
+            activeOpacity={0.7}
           >
             <Icon name="trash-outline" size={20} color={Colors.error} />
             <View style={styles.actionContent}>
@@ -238,7 +273,10 @@ Despite our efforts, no method of transmission over the Internet is 100% secure.
             </View>
           </View>
 
-          <TouchableOpacity style={styles.contactButton}>
+          <TouchableOpacity 
+            style={styles.contactButton}
+            activeOpacity={0.8}
+          >
             <Icon name="mail" size={18} color={Colors.white} />
             <Text style={styles.contactButtonText}>Send Privacy Inquiry</Text>
           </TouchableOpacity>
@@ -253,21 +291,25 @@ Despite our efforts, no method of transmission over the Internet is 100% secure.
           <Text style={styles.updateDate}>Last reviewed: December 15, 2023</Text>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
     backgroundColor: Colors.background,
   },
-  container: {
+  scrollView: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   header: {
     alignItems: 'center',
-    padding: 32,
+    paddingBottom: 32,
+    paddingHorizontal: 32,
     backgroundColor: Colors.primary,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
@@ -327,6 +369,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderRadius: 16,
     overflow: 'hidden',
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   controlItem: {
     flexDirection: 'row',
@@ -338,18 +385,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+    marginRight: 12,
+  },
+  controlTextContainer: {
+    flex: 1,
+    marginLeft: 12,
   },
   controlText: {
     fontSize: 16,
     fontWeight: '500',
     color: Colors.black,
-    marginLeft: 12,
     marginBottom: 2,
   },
   controlDescription: {
     fontSize: 13,
     color: Colors.gray,
-    marginLeft: 12,
   },
   divider: {
     height: 1,
@@ -379,7 +429,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: Colors.purple,
+    backgroundColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -416,6 +466,11 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     marginBottom: 8,
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
   },
   dangerAction: {
     borderWidth: 1,
@@ -437,7 +492,7 @@ const styles = StyleSheet.create({
   },
   contactSection: {
     padding: 20,
-    backgroundColor: `${Colors.purple}08`,
+    backgroundColor: `${Colors.background}08`,
     marginHorizontal: 16,
     marginBottom: 16,
     borderRadius: 16,
@@ -450,7 +505,7 @@ const styles = StyleSheet.create({
   contactTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: Colors.purple,
+    color: Colors.primary,
     marginLeft: 8,
   },
   contactInfo: {
@@ -470,9 +525,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.purple,
+    backgroundColor: Colors.primary,
     paddingVertical: 14,
     borderRadius: 12,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   contactButtonText: {
     color: Colors.white,
@@ -483,6 +543,7 @@ const styles = StyleSheet.create({
   footer: {
     padding: 24,
     alignItems: 'center',
+    marginBottom: 8,
   },
   footerTitle: {
     fontSize: 16,

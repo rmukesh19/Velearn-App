@@ -4,17 +4,32 @@ import {
   View, 
   Text, 
   StyleSheet, 
-  ScrollView, 
-  SafeAreaView,
+  ScrollView,
   TouchableOpacity,
   Switch,
-  Alert 
+  Alert,
+  Platform,
+  StatusBar,
+  Dimensions,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Colors } from '../../../theme/colors';
 
+const { height, width } = Dimensions.get('window');
+
+// Device detection helper
+const hasNotch = (): boolean => {
+  if (Platform.OS === 'android') {
+    return StatusBar.currentHeight ? StatusBar.currentHeight > 24 : false;
+  }
+  // iOS devices with notch
+  return Platform.OS === 'ios' && (height >= 812 || width >= 812);
+};
 
 const AppSettingsScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
+  
   const [darkMode, setDarkMode] = React.useState(false);
   const [notifications, setNotifications] = React.useState(true);
   const [autoPlay, setAutoPlay] = React.useState(false);
@@ -185,10 +200,22 @@ const AppSettingsScreen: React.FC = () => {
     },
   ];
 
+  // Calculate header padding
+  const headerPaddingTop = Math.max(insets.top, Platform.OS === 'ios' ? 44 : 20) + 16;
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.container}>
-        <View style={styles.header}>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={Colors.gray} />
+      
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: Math.max(insets.bottom, 20) + 20 }
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={[styles.header, { paddingTop: headerPaddingTop }]}>
           <Icon name="settings-outline" size={32} color={Colors.white} />
           <Text style={styles.title}>App Settings</Text>
           <Text style={styles.subtitle}>Customize your app experience</Text>
@@ -319,21 +346,25 @@ const AppSettingsScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
     backgroundColor: Colors.background,
   },
-  container: {
+  scrollView: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   header: {
     alignItems: 'center',
-    padding: 32,
+    paddingBottom: 32,
+    paddingHorizontal: 32,
     backgroundColor: Colors.gray,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
@@ -399,6 +430,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderRadius: 16,
     overflow: 'hidden',
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   settingItem: {
     flexDirection: 'row',
@@ -441,6 +477,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderRadius: 16,
     overflow: 'hidden',
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   securityItem: {
     flexDirection: 'row',
@@ -480,6 +521,11 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     marginBottom: 8,
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
   },
   advancedButtonText: {
     fontSize: 16,
@@ -493,6 +539,7 @@ const styles = StyleSheet.create({
     backgroundColor: `${Colors.primary}08`,
     margin: 16,
     borderRadius: 20,
+    marginBottom: 8,
   },
   versionTitle: {
     fontSize: 16,
@@ -512,6 +559,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 12,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   updateButtonText: {
     color: Colors.white,

@@ -1,0 +1,6 @@
+module Pods_Velearn {
+  umbrella header "Pods-Velearn-umbrella.h"
+
+  export *
+  module * { export * }
+}

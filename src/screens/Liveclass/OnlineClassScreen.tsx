@@ -71,7 +71,7 @@ const OnlineClassScreen: React.FC = () => {
         </View>
 
         {/* Additional Controls */}
-        <View style={styles.additionalControls}>
+        {/* <View style={styles.additionalControls}>
           <TouchableOpacity style={styles.additionalButton}>
             <Icon name="share-outline" size={20} color={Colors.primary} />
             <Text style={styles.additionalButtonText}>Share</Text>
@@ -84,7 +84,7 @@ const OnlineClassScreen: React.FC = () => {
             <Icon name="settings-outline" size={20} color={Colors.primary} />
             <Text style={styles.additionalButtonText}>Settings</Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
     </SafeAreaView>
   );

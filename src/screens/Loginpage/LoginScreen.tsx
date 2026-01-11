@@ -1,272 +1,3 @@
-// import React, { useState } from 'react';
-// import {
-//   View,
-//   Text,
-//   StyleSheet,
-//   TextInput,
-//   TouchableOpacity,
-//   ScrollView,
-//   StatusBar,
-//   KeyboardAvoidingView,
-//   Platform,
-//   Image,
-// } from 'react-native';
-// import Icon from 'react-native-vector-icons/Ionicons';
-// import { Colors } from '../theme/colors';
-
-// const LoginScreen = ({ navigation }: any) => {
-//   const [email, setEmail] = useState('');
-//   const [password, setPassword] = useState('');
-//   const [showPassword, setShowPassword] = useState(false);
-
-//   /* --------------------------------------------------------
-//       SIMPLE DEMO LOGIN → DIRECT GO TO HOMESCREEN (AppTabs)
-//   ---------------------------------------------------------*/
-//   const handleLogin = () => {
-//     navigation.replace('AppTabs'); // go to home tabs directly
-//   };
-
-//   const handleGoogleSignIn = () => {
-//     navigation.replace('AppTabs'); // Google → Home directly
-//   };
-
-//   const handleForgotPassword = () => {
-//     navigation.navigate('ForgotPassword');
-//   };
-
-//   const handleSignUp = () => {
-//     navigation.navigate('SignUp');
-//   };
-
-//   return (
-//     <KeyboardAvoidingView
-//       style={styles.container}
-//       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-//     >
-//       <StatusBar backgroundColor={Colors.white} barStyle="dark-content" />
-
-//       <ScrollView
-//         contentContainerStyle={styles.scrollContainer}
-//         showsVerticalScrollIndicator={false}
-//       >
-//         {/* Header */}
-//         <View style={styles.header}>
-//           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-//             <Icon name="arrow-back" size={24} color={Colors.primary} />
-//           </TouchableOpacity>
-//           <Text style={styles.headerTitle}>Welcome Back</Text>
-//           <Text style={styles.headerSubtitle}>
-//             Sign in to continue your learning journey
-//           </Text>
-//         </View>
-
-//         {/* Logo */}
-//         <View style={styles.logoContainer}>
-//           <View style={styles.logo}>
-//              <Image
-//                         source={require('../images/logo/favicon.png')} // Replace with your logo image path
-//                         style={styles.logoImage}
-//                         resizeMode="contain"
-//                       />
-//           </View>
-//              <Image
-//                         source={require('../images/logo/velearn-logo.png')} // Replace with your logo image path
-//                         style={styles.logoImage}
-//                         resizeMode="contain"
-//                       />
-//         </View>
-
-//         {/* Form */}
-//         <View style={styles.form}>
-//           {/* Email Input */}
-//           <View style={styles.inputContainer}>
-//             <Icon name="mail" size={20} color={Colors.gray} style={styles.inputIcon} />
-//             <TextInput
-//               style={styles.input}
-//               placeholder="Email Address"
-//               placeholderTextColor={Colors.gray}
-//               value={email}
-//               onChangeText={setEmail}
-//               autoCapitalize="none"
-//             />
-//           </View>
-
-//           {/* Password Input */}
-//           <View style={styles.inputContainer}>
-//             <Icon name="lock-closed" size={20} color={Colors.gray} style={styles.inputIcon} />
-//             <TextInput
-//               style={styles.input}
-//               placeholder="Password"
-//               placeholderTextColor={Colors.gray}
-//               value={password}
-//               onChangeText={setPassword}
-//               secureTextEntry={!showPassword}
-//               autoCapitalize="none"
-//             />
-
-//             <TouchableOpacity
-//               style={styles.passwordToggle}
-//               onPress={() => setShowPassword(!showPassword)}
-//             >
-//               <Icon
-//                 name={showPassword ? 'eye-off' : 'eye'}
-//                 size={20}
-//                 color={Colors.gray}
-//               />
-//             </TouchableOpacity>
-//           </View>
-
-//           {/* Remember & Forgot Password */}
-//           <View style={styles.rememberContainer}>
-//             <TouchableOpacity style={styles.rememberCheckbox}>
-//               <Icon name={'square-outline'} size={20} color={Colors.gray} />
-//               <Text style={styles.rememberText}>Remember me</Text>
-//             </TouchableOpacity>
-
-//             <TouchableOpacity onPress={handleForgotPassword}>
-//               <Text style={styles.forgotText}>Forgot Password?</Text>
-//             </TouchableOpacity>
-//           </View>
-
-//           {/* Login Button */}
-//           <TouchableOpacity
-//             style={styles.loginButton}
-//             onPress={handleLogin} // SIMPLE DIRECT LOGIN
-//           >
-//             <Text style={styles.loginButtonText}>Sign In</Text>
-//             <Icon name="arrow-forward" size={20} color={Colors.white} />
-//           </TouchableOpacity>
-
-//           {/* Divider */}
-//           <View style={styles.dividerContainer}>
-//             <View style={styles.divider} />
-//             <Text style={styles.dividerText}>Or continue with</Text>
-//             <View style={styles.divider} />
-//           </View>
-
-//           {/* Social Login Buttons */}
-//           <View style={styles.socialButtons}>
-//             <TouchableOpacity style={styles.socialButton} onPress={handleGoogleSignIn}>
-//               <Image
-//                 source={{ uri: 'https://cdn-icons-png.flaticon.com/512/2991/2991148.png' }}
-//                 style={styles.socialIcon}
-//               />
-//               <Text style={styles.socialButtonText}>Google</Text>
-//             </TouchableOpacity>
-
-//             <TouchableOpacity style={[styles.socialButton, styles.facebookButton]}>
-//               <Icon name="logo-facebook" size={24} color="#1877F2" />
-//               <Text style={[styles.socialButtonText, styles.facebookText]}>
-//                 Facebook
-//               </Text>
-//             </TouchableOpacity>
-//           </View>
-
-//           {/* Sign Up */}
-//           <View style={styles.signUpContainer}>
-//             <Text style={styles.signUpText}>Don't have an account? </Text>
-//             <TouchableOpacity onPress={handleSignUp}>
-//               <Text style={styles.signUpLink}>Sign Up</Text>
-//             </TouchableOpacity>
-//           </View>
-//         </View>
-//       </ScrollView>
-//     </KeyboardAvoidingView>
-//   );
-// };
-
-// /* ----------- STYLES (unchanged) ----------- */
-
-// const styles = StyleSheet.create({
-//   container: { flex: 1, backgroundColor: Colors.white },
-//   scrollContainer: { flexGrow: 1, paddingBottom: 30 },
-//   header: { paddingHorizontal: 25, paddingTop: 60, paddingBottom: 20 },
-//   backButton: {
-//     width: 40,
-//     height: 40,
-//     borderRadius: 20,
-//     backgroundColor: Colors.background,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     marginBottom: 20,
-//   },
-//   headerTitle: { fontSize: 32, fontWeight: 'bold', color: Colors.primary, marginBottom: 10 },
-//   headerSubtitle: { fontSize: 16, color: Colors.gray, lineHeight: 24 },
-//   logoContainer: { alignItems: 'center', marginVertical: 20 },
-//   logo: {
-//     width: 80,
-//     height: 80,
-   
-    
-//     justifyContent: 'center',
-//     alignItems: 'center',
-  
-//   },
-
-//   logoImage: {
-//     width: 150,
-//     height: 80,
-//   },
-//   appName: { fontSize: 24, fontWeight: 'bold', color: Colors.primary, marginTop: 15 },
-//   form: { paddingHorizontal: 25, marginTop: 20 },
-//   inputContainer: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     backgroundColor: Colors.background,
-//     borderRadius: 15,
-//     paddingHorizontal: 20,
-//     marginBottom: 20,
-//     borderWidth: 1,
-//     borderColor: Colors.lightGray,
-//   },
-//   inputIcon: { marginRight: 15 },
-//   input: { flex: 1, fontSize: 16, color: Colors.primary, paddingVertical: 15 },
-//   passwordToggle: { padding: 10 },
-//   rememberContainer: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     marginBottom: 30,
-//   },
-//   rememberCheckbox: { flexDirection: 'row', alignItems: 'center' },
-//   rememberText: { fontSize: 14, color: Colors.gray, marginLeft: 10 },
-//   forgotText: { fontSize: 14, color: Colors.secondary },
-//   loginButton: {
-//     backgroundColor: Colors.primary,
-//     borderRadius: 15,
-//     paddingVertical: 18,
-//     flexDirection: 'row',
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//   },
-//   loginButtonText: { color: Colors.white, fontSize: 18, fontWeight: 'bold', marginRight: 10 },
-//   dividerContainer: { flexDirection: 'row', alignItems: 'center', marginVertical: 30 },
-//   divider: { flex: 1, height: 1, backgroundColor: Colors.lightGray },
-//   dividerText: { marginHorizontal: 15, fontSize: 14, color: Colors.gray },
-//   socialButtons: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 30 },
-//   socialButton: {
-//     flex: 1,
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//     paddingVertical: 15,
-//     borderRadius: 15,
-//     borderWidth: 1,
-//     borderColor: Colors.lightGray,
-//     marginHorizontal: 5,
-//   },
-//   socialIcon: { width: 24, height: 24, marginRight: 10 },
-//   socialButtonText: { fontSize: 16, color: Colors.primary },
-//   facebookButton: { borderColor: '#1877F2' },
-//   facebookText: { color: '#1877F2' },
-//   signUpContainer: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },
-//   signUpText: { fontSize: 16, color: Colors.gray },
-//   signUpLink: { fontSize: 16, color: Colors.secondary, fontWeight: 'bold' },
-// });
-
-// export default LoginScreen;
-
-
-
 import React, { useState } from 'react';
 import {
   View,
@@ -285,8 +16,10 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Colors } from '../../theme/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const LoginScreen = ({ navigation }: any) => {
+  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -324,9 +57,9 @@ const LoginScreen = ({ navigation }: any) => {
 
       const data = await response.json();
 
-      if (response.ok && data.status === true) {
+      if (response.ok && data.message === 'Login successful') {
         // Store token and user data
-        await AsyncStorage.setItem('authToken', data.token);
+        await AsyncStorage.setItem('authToken', 'your-token-here'); // Replace with actual token if API provides
         await AsyncStorage.setItem('userData', JSON.stringify(data.user));
 
         // Store credentials if remember me is checked
@@ -337,9 +70,9 @@ const LoginScreen = ({ navigation }: any) => {
         }
 
         // Navigate to home screen
-        navigation.replace('AppTabs');
+        navigation.replace('MainTabs');
         
-        // Optional: Show success message
+        // Show success message
         Alert.alert('Success', data.message || 'Login successful');
       } else {
         // Handle API errors
@@ -374,7 +107,7 @@ const LoginScreen = ({ navigation }: any) => {
   const handleGoogleSignIn = () => {
     // Google sign-in implementation
     // For now, navigate directly
-    navigation.replace('AppTabs');
+    navigation.replace('MainTabs');
   };
 
   const handleForgotPassword = () => {
@@ -382,8 +115,10 @@ const LoginScreen = ({ navigation }: any) => {
   };
 
   const handleSignUp = () => {
-    navigation.navigate('SignUp');
+    navigation.navigate('Signup');
   };
+
+  const bottomPadding = Math.max(insets.bottom, 20) + (Platform.OS === 'ios' ? 40 : 60);
 
   return (
     <KeyboardAvoidingView
@@ -394,7 +129,7 @@ const LoginScreen = ({ navigation }: any) => {
       <StatusBar backgroundColor={Colors.white} barStyle="dark-content" />
 
       <ScrollView
-        contentContainerStyle={styles.scrollContainer}
+        contentContainerStyle={[styles.scrollContainer, { paddingBottom: bottomPadding }]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
@@ -418,7 +153,7 @@ const LoginScreen = ({ navigation }: any) => {
           <View style={styles.logo}>
             <Image
               source={require('../../images/logo/favicon.png')}
-              style={styles.logoImage}
+              style={styles.faviconImage}
               resizeMode="contain"
             />
           </View>
@@ -445,10 +180,6 @@ const LoginScreen = ({ navigation }: any) => {
               autoComplete="email"
               editable={!loading}
               returnKeyType="next"
-              onSubmitEditing={() => {
-                // Focus next input if available
-                // You can add ref to password input for better handling
-              }}
             />
           </View>
 
@@ -511,7 +242,7 @@ const LoginScreen = ({ navigation }: any) => {
               <ActivityIndicator color={Colors.white} size="small" />
             ) : (
               <>
-                <Text style={styles.loginButtonText}>Sign In</Text>
+                <Text style={styles.loginButtonText}>Log In</Text>
                 <Icon name="arrow-forward" size={20} color={Colors.white} />
               </>
             )}
@@ -568,8 +299,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white 
   },
   scrollContainer: { 
-    flexGrow: 1, 
-    paddingBottom: 30 
+    flexGrow: 1,
   },
   header: { 
     paddingHorizontal: 25, 
@@ -606,6 +336,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  faviconImage: {
+    width: 80,
+    height: 80,
+  },
   logoImage: {
     width: 150,
     height: 80,
@@ -625,7 +359,8 @@ const styles = StyleSheet.create({
     borderColor: Colors.lightGray,
   },
   inputIcon: { 
-    marginRight: 15 
+    marginRight: 15,
+    flexShrink: 0,
   },
   input: { 
     flex: 1, 
@@ -634,16 +369,20 @@ const styles = StyleSheet.create({
     paddingVertical: 15 
   },
   passwordToggle: { 
-    padding: 10 
+    padding: 10,
+    flexShrink: 0,
   },
   rememberContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 30,
+    flexWrap: 'wrap',
   },
   rememberCheckbox: { 
     flexDirection: 'row', 
-    alignItems: 'center' 
+    alignItems: 'center',
+    flexShrink: 0,
   },
   rememberText: { 
     fontSize: 14, 
@@ -652,7 +391,8 @@ const styles = StyleSheet.create({
   },
   forgotText: { 
     fontSize: 14, 
-    color: Colors.secondary 
+    color: Colors.secondary,
+    flexShrink: 0,
   },
   loginButton: {
     backgroundColor: Colors.primary,
@@ -690,7 +430,8 @@ const styles = StyleSheet.create({
   socialButtons: { 
     flexDirection: 'row', 
     justifyContent: 'space-between', 
-    marginBottom: 30 
+    marginBottom: 30,
+    gap: 10,
   },
   socialButton: {
     flex: 1,
@@ -698,10 +439,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 15,
+    paddingHorizontal: 12,
     borderRadius: 15,
     borderWidth: 1,
     borderColor: Colors.lightGray,
-    marginHorizontal: 5,
   },
   socialButtonDisabled: {
     opacity: 0.5,
@@ -724,7 +465,8 @@ const styles = StyleSheet.create({
   signUpContainer: { 
     flexDirection: 'row', 
     justifyContent: 'center', 
-    marginTop: 20 
+    marginTop: 20,
+    flexWrap: 'wrap',
   },
   signUpText: { 
     fontSize: 16, 

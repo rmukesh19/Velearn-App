@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   StatusBar,
   View,
@@ -6,18 +6,22 @@ import {
   Text,
   Image,
   StyleSheet,
+  Alert,
+  Animated,
+  Platform,
 } from 'react-native';
 import {
   SafeAreaProvider,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
+import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '../theme/colors';
 
-// Main Screens
+// Main Screens (imports remain the same)
 import SplashScreen from '../screens/Splashpage/SplashScreen';
 import HomeScreen from '../screens/Home/HomeScreen';
 import LiveClassScreen from '../screens/Liveclass/LiveClassScreen';
@@ -55,14 +59,218 @@ import CertificatesScreen from '../screens/Options/CertificatesScreen/Certificat
 import AppSettingsScreen from '../screens/Options/AppSettingsScreen/AppSettingsScreen';
 import HelpSupportScreen from '../screens/Options/Help&SupportScreen/Help&SupportScreen';
 import PrivacyPolicyScreen from '../screens/Options/PrivacyPolicyScreen/PrivacyPolicyScreen';
-import FreeCoursesScreen from '../screens/Coursespages/FreeCoursesScreen.tsx';  
+import FreeCoursesDetailScreen from '../screens/Coursespages/FreeCoursesDetailScreen.tsx';
 
 const MainStack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-/* ───────── HEADER ───────── */
-const Header = ({ navigation, isLoggedIn = false }) => {
+// User Context
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
+/* ───────── ANIMATED TAB ICON ───────── */
+const AnimatedTabIcon = ({ focused, iconName, label }: { focused: boolean; iconName: string; label: string }) => {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const translateYAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.spring(scaleAnim, {
+        toValue: focused ? 1.1 : 1,
+        useNativeDriver: true,
+        friction: 3,
+      }),
+      Animated.spring(translateYAnim, {
+        toValue: focused ? -2 : 0,
+        useNativeDriver: true,
+        friction: 3,
+      }),
+    ]).start();
+  }, [focused]);
+
+  return (
+    <Animated.View
+      style={[
+        styles.tabIconContainer,
+        {
+          transform: [{ scale: scaleAnim }, { translateY: translateYAnim }],
+        },
+      ]}
+    >
+      {focused && <View style={styles.activeIndicator} />}
+      <Icon
+        name={iconName}
+        size={24}
+        color={focused ? Colors.primary : Colors.gray}
+        style={styles.tabIcon}
+      />
+      <Text
+        style={[
+          styles.tabLabel,
+          { color: focused ? Colors.primary : Colors.gray },
+          focused && styles.tabLabelActive,
+        ]}
+      >
+        {label}
+      </Text>
+    </Animated.View>
+  );
+};
+
+/* ───────── CUSTOM TAB BAR ───────── */
+const CustomTabBar = ({ state, descriptors, navigation }: any) => {
   const insets = useSafeAreaInsets();
+  const animatedValues = useRef(
+    state.routes.map(() => new Animated.Value(0))
+  ).current;
+
+  useEffect(() => {
+    animatedValues.forEach((anim, index) => {
+      Animated.timing(anim, {
+        toValue: state.index === index ? 1 : 0,
+        duration: 300,
+        useNativeDriver: false,
+      }).start();
+    });
+  }, [state.index]);
+
+  return (
+    <View
+      style={[
+        styles.tabBarContainer,
+        {
+          paddingBottom: Math.max(insets.bottom, 8),
+          height: 65 + Math.max(insets.bottom, 8),
+        },
+      ]}
+    >
+      <View style={styles.tabBarContent}>
+        {state.routes.map((route: any, index: number) => {
+          const { options } = descriptors[route.key];
+          const isFocused = state.index === index;
+
+          const onPress = () => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate(route.name);
+            }
+          };
+
+          const onLongPress = () => {
+            navigation.emit({
+              type: 'tabLongPress',
+              target: route.key,
+            });
+          };
+
+          // Icon names based on route
+          let iconName = 'menu-outline';
+          let focusedIconName = 'menu';
+          let label = route.name;
+
+          switch (route.name) {
+            case 'Home':
+              iconName = 'home-outline';
+              focusedIconName = 'home';
+              label = 'Home';
+              break;
+            case 'Course':
+              iconName = 'book-outline';
+              focusedIconName = 'book';
+              label = 'Courses';
+              break;
+            case 'Live':
+              iconName = 'videocam-outline';
+              focusedIconName = 'videocam';
+              label = 'Live';
+              break;
+            case 'Practice':
+              iconName = 'code-slash-outline';
+              focusedIconName = 'code-slash';
+              label = 'Practice';
+              break;
+            case 'More':
+              iconName = 'grid-outline';
+              focusedIconName = 'grid';
+              label = 'More';
+              break;
+          }
+
+          const backgroundColor = animatedValues[index].interpolate({
+            inputRange: [0, 1],
+            outputRange: ['transparent', Colors.primary + '15'],
+          });
+
+          return (
+            <TouchableOpacity
+              key={route.key}
+              accessibilityRole="button"
+              accessibilityState={isFocused ? { selected: true } : {}}
+              accessibilityLabel={options.tabBarAccessibilityLabel}
+              testID={options.tabBarTestID}
+              onPress={onPress}
+              onLongPress={onLongPress}
+              style={styles.tabButton}
+              activeOpacity={0.7}
+            >
+              <Animated.View
+                style={[
+                  styles.tabButtonBackground,
+                  { backgroundColor },
+                ]}
+              >
+                <AnimatedTabIcon
+                  focused={isFocused}
+                  iconName={isFocused ? focusedIconName : iconName}
+                  label={label}
+                />
+              </Animated.View>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </View>
+  );
+};
+
+/* ───────── HEADER ───────── */
+const Header = ({ navigation, isLoggedIn, userName }: { navigation: any; isLoggedIn: boolean; userName: string }) => {
+  const insets = useSafeAreaInsets();
+
+  const handleLogout = async () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem('userData');
+              await AsyncStorage.removeItem('authToken');
+              navigation.navigate('Home');
+            } catch (error) {
+              console.error('Logout error:', error);
+            }
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <View
@@ -72,17 +280,24 @@ const Header = ({ navigation, isLoggedIn = false }) => {
       ]}
     >
       <View style={styles.header}>
-        <Image
-          source={require('../images/logo/velearn-logo.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
+        <TouchableOpacity 
+          onPress={() => navigation.navigate('Home')}
+          activeOpacity={0.7}
+        >
+          <Image
+            source={require('../images/logo/velearn-logo.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
 
         <View style={styles.authButtons}>
           {!isLoggedIn ? (
             <>
               <TouchableOpacity
                 onPress={() => navigation.navigate('Login')}
+                activeOpacity={0.7}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
                 <Text style={styles.loginButtonText}>Login</Text>
               </TouchableOpacity>
@@ -90,12 +305,26 @@ const Header = ({ navigation, isLoggedIn = false }) => {
               <TouchableOpacity
                 style={styles.signupButton}
                 onPress={() => navigation.navigate('Signup')}
+                activeOpacity={0.7}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
                 <Text style={styles.signupButtonText}>Sign Up</Text>
               </TouchableOpacity>
             </>
           ) : (
-            <Text style={styles.welcomeText}>Welcome!</Text>
+            <View style={styles.userContainer}>
+              <Text style={styles.welcomeText} numberOfLines={1}>
+                Hi, {userName}
+              </Text>
+              <TouchableOpacity
+                onPress={handleLogout}
+                style={styles.logoutButton}
+                activeOpacity={0.7}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Icon name="log-out-outline" size={20} color={Colors.primary} />
+              </TouchableOpacity>
+            </View>
           )}
         </View>
       </View>
@@ -104,10 +333,10 @@ const Header = ({ navigation, isLoggedIn = false }) => {
 };
 
 /* ───────── SCREEN WRAPPER ───────── */
-const ScreenWithHeader = ({ children, navigation, isLoggedIn = false }) => {
+const ScreenWithHeader = ({ children, navigation, isLoggedIn = false, userName = '' }) => {
   return (
     <View style={styles.container}>
-      <Header navigation={navigation} isLoggedIn={isLoggedIn} />
+      <Header navigation={navigation} isLoggedIn={isLoggedIn} userName={userName} />
       <View style={styles.content}>
         {children}
       </View>
@@ -116,116 +345,211 @@ const ScreenWithHeader = ({ children, navigation, isLoggedIn = false }) => {
 };
 
 /* ───────── WRAPPED SCREENS ───────── */
-const HomeWithHeader = ({ navigation }) => (
-  <ScreenWithHeader navigation={navigation} isLoggedIn={false}>
-    <HomeScreen />
-  </ScreenWithHeader>
-);
+const HomeWithHeader = ({ navigation, route }: any) => {
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-const CoursesWithHeader = ({ navigation }) => (
-  <ScreenWithHeader navigation={navigation} isLoggedIn={false}>
-    <CoursesScreen />
-  </ScreenWithHeader>
-);
+  const loadUserData = useCallback(async () => {
+    try {
+      const userDataString = await AsyncStorage.getItem('userData');
+      if (userDataString) {
+        const data = JSON.parse(userDataString);
+        setUserData(data);
+        setIsLoggedIn(true);
+      }
+    } catch (error) {
+      console.error('Error loading user data:', error);
+    }
+  }, []);
 
-const LiveWithHeader = ({ navigation }) => (
-  <ScreenWithHeader navigation={navigation} isLoggedIn={false}>
-    <LiveClassScreen />
-  </ScreenWithHeader>
-);
+  useEffect(() => {
+    loadUserData();
+    const unsubscribe = navigation.addListener('focus', () => {
+      loadUserData();
+    });
+    return unsubscribe;
+  }, [navigation, loadUserData]);
 
-const OptionsWithHeader = ({ navigation }) => (
-  <ScreenWithHeader navigation={navigation} isLoggedIn={false}>
-    <OptionsScreen />
-  </ScreenWithHeader>
-);
+  useEffect(() => {
+    if (route.params?.userData) {
+      setUserData(route.params.userData);
+      setIsLoggedIn(true);
+      navigation.setParams({ userData: undefined });
+    }
+  }, [route.params, navigation]);
 
-const PracticeIDEWithHeader = ({ navigation }) => (
-  <ScreenWithHeader navigation={navigation} isLoggedIn={false}>
-    <PracticeIDEScreen />
-  </ScreenWithHeader>
-);
+  return (
+    <ScreenWithHeader 
+      navigation={navigation} 
+      isLoggedIn={isLoggedIn} 
+      userName={userData?.name || ''}
+    >
+      <HomeScreen />
+    </ScreenWithHeader>
+  );
+};
+
+const CoursesWithHeader = ({ navigation, route }: any) => {
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const loadUserData = useCallback(async () => {
+    try {
+      const userDataString = await AsyncStorage.getItem('userData');
+      if (userDataString) {
+        const data = JSON.parse(userDataString);
+        setUserData(data);
+        setIsLoggedIn(true);
+      }
+    } catch (error) {
+      console.error('Error loading user data:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadUserData();
+    const unsubscribe = navigation.addListener('focus', () => {
+      loadUserData();
+    });
+    return unsubscribe;
+  }, [navigation, loadUserData]);
+
+  return (
+    <ScreenWithHeader 
+      navigation={navigation} 
+      isLoggedIn={isLoggedIn} 
+      userName={userData?.name || ''}
+    >
+      <CoursesScreen />
+    </ScreenWithHeader>
+  );
+};
+
+const LiveWithHeader = ({ navigation, route }: any) => {
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const loadUserData = useCallback(async () => {
+    try {
+      const userDataString = await AsyncStorage.getItem('userData');
+      if (userDataString) {
+        const data = JSON.parse(userDataString);
+        setUserData(data);
+        setIsLoggedIn(true);
+      }
+    } catch (error) {
+      console.error('Error loading user data:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadUserData();
+    const unsubscribe = navigation.addListener('focus', () => {
+      loadUserData();
+    });
+    return unsubscribe;
+  }, [navigation, loadUserData]);
+
+  return (
+    <ScreenWithHeader 
+      navigation={navigation} 
+      isLoggedIn={isLoggedIn} 
+      userName={userData?.name || ''}
+    >
+      <LiveClassScreen />
+    </ScreenWithHeader>
+  );
+};
+
+const PracticeIDEWithHeader = ({ navigation, route }: any) => {
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const loadUserData = useCallback(async () => {
+    try {
+      const userDataString = await AsyncStorage.getItem('userData');
+      if (userDataString) {
+        const data = JSON.parse(userDataString);
+        setUserData(data);
+        setIsLoggedIn(true);
+      }
+    } catch (error) {
+      console.error('Error loading user data:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadUserData();
+    const unsubscribe = navigation.addListener('focus', () => {
+      loadUserData();
+    });
+    return unsubscribe;
+  }, [navigation, loadUserData]);
+
+  return (
+    <ScreenWithHeader 
+      navigation={navigation} 
+      isLoggedIn={isLoggedIn} 
+      userName={userData?.name || ''}
+    >
+      <PracticeIDEScreen />
+    </ScreenWithHeader>
+  );
+};
+
+const OptionsWithHeader = ({ navigation, route }: any) => {
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const loadUserData = useCallback(async () => {
+    try {
+      const userDataString = await AsyncStorage.getItem('userData');
+      if (userDataString) {
+        const data = JSON.parse(userDataString);
+        setUserData(data);
+        setIsLoggedIn(true);
+      }
+    } catch (error) {
+      console.error('Error loading user data:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadUserData();
+    const unsubscribe = navigation.addListener('focus', () => {
+      loadUserData();
+    });
+    return unsubscribe;
+  }, [navigation, loadUserData]);
+
+  return (
+    <ScreenWithHeader 
+      navigation={navigation} 
+      isLoggedIn={isLoggedIn} 
+      userName={userData?.name || ''}
+    >
+      <OptionsScreen />
+    </ScreenWithHeader>
+  );
+};
 
 /* ───────── MAIN TABS ───────── */
 const MainTabs = () => {
-  const insets = useSafeAreaInsets();
-
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
+      tabBar={(props) => <CustomTabBar {...props} />}
+      screenOptions={{
         headerShown: false,
-        tabBarStyle: {
-          height: 60 + insets.bottom,
-          paddingBottom: insets.bottom,
-          backgroundColor: Colors.white,
-          borderTopWidth: 1,
-          borderTopColor: Colors.lightGray,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 4,
-          elevation: 8,
-        },
-        tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.gray,
-        tabBarLabelStyle: {
-          fontSize: 12,
-          marginTop: -4,
-          fontWeight: '500',
-        },
-        tabBarIcon: ({ color, focused }) => {
-          let iconName = 'menu-outline';
-
-          if (route.name === 'Home')
-            iconName = focused ? 'home' : 'home-outline';
-          if (route.name === 'Course')
-            iconName = focused ? 'book' : 'book-outline';
-          if (route.name === 'Live')
-            iconName = focused ? 'tv' : 'tv-outline';
-          if (route.name === 'Practice')
-            iconName = focused ? 'code-slash' : 'code-slash-outline';
-          if (route.name === 'More')
-            iconName = focused ? 'menu' : 'menu-outline';
-
-          return <Icon name={iconName} size={24} color={color} />;
-        },
-      })}
+      }}
+      sceneContainerStyle={{
+        backgroundColor: Colors.white,
+      }}
     >
-      <Tab.Screen 
-        name="Home" 
-        component={HomeWithHeader}
-        options={{ 
-          tabBarLabel: 'Home',
-        }}
-      />
-      <Tab.Screen
-        name="Course"
-        component={CoursesWithHeader}
-        options={{ 
-          tabBarLabel: 'Courses',
-        }}
-      />
-      <Tab.Screen 
-        name="Live" 
-        component={LiveWithHeader}
-        options={{ 
-          tabBarLabel: 'Live',
-        }}
-      />
-      <Tab.Screen 
-        name="Practice" 
-        component={PracticeIDEWithHeader}
-        options={{ 
-          tabBarLabel: 'Practice',
-        }}
-      />
-      <Tab.Screen 
-        name="More" 
-        component={OptionsWithHeader}
-        options={{ 
-          tabBarLabel: 'More',
-        }}
-      />
+      <Tab.Screen name="Home" component={HomeWithHeader} />
+      <Tab.Screen name="Course" component={CoursesWithHeader} />
+      <Tab.Screen name="Live" component={LiveWithHeader} />
+      <Tab.Screen name="Practice" component={PracticeIDEWithHeader} />
+      <Tab.Screen name="More" component={OptionsWithHeader} />
     </Tab.Navigator>
   );
 };
@@ -246,7 +570,6 @@ type RootStackParamList = {
   BlogViewScreen: undefined;
   Login: undefined;
   Signup: undefined;
-  // Option Screens
   AccountSettings: undefined;
   Webinars: undefined;
   Notifications: undefined;
@@ -256,28 +579,37 @@ type RootStackParamList = {
   AppSettings: undefined;
   HelpSupport: undefined;
   PrivacyPolicy: undefined;
+  FreeCoursesScreen: undefined;
+  FreeCoursesDetailScreen: undefined;
 };
 
 /* ───────── APP NAVIGATOR ───────── */
 export default function AppNavigator() {
   const [isAppReady, setIsAppReady] = useState(false);
-  const navigationRef = useRef<any>(null);
-  const initTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
+  const routeNameRef = useRef<string>();
 
-  // Initialize app loading
   useEffect(() => {
-    // Simulate app initialization
-    initTimeoutRef.current = setTimeout(() => {
+    const initTimeout = setTimeout(() => {
       setIsAppReady(true);
     }, 1500);
-
-    return () => {
-      if (initTimeoutRef.current) {
-        clearTimeout(initTimeoutRef.current);
-      }
-    };
+    return () => clearTimeout(initTimeout);
   }, []);
 
+  if (!isAppReady) {
+    return (
+      <View style={styles.loadingContainer}>
+        <View style={styles.loadingContent}>
+          <Image
+            source={require('../images/logo/velearn-logo.png')}
+            style={styles.loadingLogo}
+            resizeMode="contain"
+          />
+          <Text style={styles.loadingText}>Loading...</Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <SafeAreaProvider>
@@ -289,6 +621,13 @@ export default function AppNavigator() {
 
       <NavigationContainer
         ref={navigationRef}
+        onReady={() => {
+          routeNameRef.current = navigationRef.current?.getCurrentRoute()?.name;
+        }}
+        onStateChange={() => {
+          const currentRouteName = navigationRef.current?.getCurrentRoute()?.name;
+          routeNameRef.current = currentRouteName;
+        }}
       >
         <MainStack.Navigator 
           screenOptions={{ 
@@ -296,6 +635,7 @@ export default function AppNavigator() {
             gestureEnabled: true,
             cardStyle: { backgroundColor: Colors.white },
             animationEnabled: true,
+            ...TransitionPresets.SlideFromRightIOS,
             headerStyle: {
               backgroundColor: Colors.white,
               elevation: 0,
@@ -311,232 +651,263 @@ export default function AppNavigator() {
             headerBackTitleVisible: false,
             headerLeftContainerStyle: { paddingLeft: 8 },
             headerTitleAlign: 'center',
+            transitionSpec: {
+              open: {
+                animation: 'timing',
+                config: {
+                  duration: 300,
+                },
+              },
+              close: {
+                animation: 'timing',
+                config: {
+                  duration: 300,
+                },
+              },
+            },
           }}
           initialRouteName="Splash"
         >
-          {/* Splash Screen */}
           <MainStack.Screen 
             name="Splash" 
             component={SplashScreen}
             options={{ 
               headerShown: false,
-              animationEnabled: false 
+              animationEnabled: false,
             }}
           />
 
-          {/* Main Tabs */}
           <MainStack.Screen 
             name="MainTabs" 
             component={MainTabs}
             options={{ 
               headerShown: false,
-              animationEnabled: false 
+              gestureEnabled: false,
             }}
           />
           
-          {/* COURSE-RELATED SCREENS */}
-          <MainStack.Screen 
-            name="CourseDetail" 
-            component={CourseDetailScreen}
-            options={({ route }: any) => ({
-              headerShown: false,
-              title: 'Course Details',
-            })}
-          />
+          <MainStack.Group
+            screenOptions={{
+              gestureEnabled: true,
+              ...TransitionPresets.ModalSlideFromBottomIOS,
+            }}
+          >
+            <MainStack.Screen 
+              name="Login" 
+              component={LoginScreen}
+              options={{
+                headerShown: false,
+                title: 'Login',
+              }}
+            />
+            
+            <MainStack.Screen 
+              name="Signup" 
+              component={SignupScreen}
+              options={{
+                headerShown: false,
+                title: 'Sign Up',
+              }}
+            />
+          </MainStack.Group>
           
-          <MainStack.Screen 
-            name="CoursePlayer" 
-            component={CoursePlayerScreen}
-            options={({ route }: any) => ({
-              headerShown: false,
-              title: 'Course Player',
-            })}
-          />
-
-          {/* PRACTICE SCREENS */}
-          <MainStack.Screen 
-            name="DebuggingScreen" 
-            component={DebuggingScreen}
-            options={{
-              headerShown: false,
-              title: 'Debugging Practice',
+          <MainStack.Group
+            screenOptions={{
+              gestureEnabled: true,
             }}
-          />
+          >
+            <MainStack.Screen 
+              name="CourseDetail" 
+              component={CourseDetailScreen}
+              options={({ route }: any) => ({
+                headerShown: false,
+                title: 'Course Details',
+              })}
+            />
+            
+            <MainStack.Screen 
+              name="CoursePlayer" 
+              component={CoursePlayerScreen}
+              options={({ route }: any) => ({
+                headerShown: false,
+                title: 'Course Player',
+                gestureEnabled: false,
+              })}
+            />
 
-          <MainStack.Screen 
-            name="InteractiveIDEScreen" 
-            component={InteractiveIDEScreen}
-            options={{
-              headerShown: false,
-              title: 'Interactive IDE',
-            }}
-          />
+            <MainStack.Screen
+              name="FreeCoursesDetailScreen"
+              component={FreeCoursesDetailScreen}
+              options={{
+                headerShown: false,
+                title: 'Free Course Details',
+              }}
+            />
+          </MainStack.Group>
 
-          {/* LIVE CLASS SCREENS */}
-          <MainStack.Screen 
-            name="OnlineClass" 
-            component={OnlineClassScreen}
-            options={({ route }: any) => ({
-              headerShown: false,
-              title: 'Online Class',
-            })}
-          />
+          <MainStack.Group>
+            <MainStack.Screen 
+              name="DebuggingScreen" 
+              component={DebuggingScreen}
+              options={{
+                headerShown: false,
+                title: 'Debugging Practice',
+              }}
+            />
 
-          <MainStack.Screen 
-            name="CourseSyllabus" 
-            component={CourseSyllabusScreen}
-            options={({ route }: any) => ({
-              headerShown: false,
-              title: 'Course Syllabus',
-            })}
-          />
-           
-             <MainStack.Screen
-            name="FreeCoursesScreen"
-            component={FreeCoursesScreen}
-            options={{
-              headerShown: false,
-              title: 'Free Courses',
-            }}
-          />
+            <MainStack.Screen 
+              name="InteractiveIDEScreen" 
+              component={InteractiveIDEScreen}
+              options={{
+                headerShown: false,
+                title: 'Interactive IDE',
+              }}
+            />
+          </MainStack.Group>
 
-          <MainStack.Screen 
-            name="CoursePlan" 
-            component={CoursePlanScreen}
-            options={({ route }: any) => ({
-              headerShown: false,
-              title: 'Course Plan',
-            })}
-          />
+          <MainStack.Group>
+            <MainStack.Screen 
+              name="OnlineClass" 
+              component={OnlineClassScreen}
+              options={({ route }: any) => ({
+                headerShown: false,
+                title: 'Online Class',
+              })}
+            />
 
-          {/* OPTION SCREENS */}
-          <MainStack.Screen
-            name="AccountSettings"
-            component={AccountSettingsScreen}
-            options={{
+            <MainStack.Screen 
+              name="CourseSyllabus" 
+              component={CourseSyllabusScreen}
+              options={({ route }: any) => ({
+                headerShown: false,
+                title: 'Course Syllabus',
+              })}
+            />
+
+            <MainStack.Screen 
+              name="CoursePlan" 
+              component={CoursePlanScreen}
+              options={({ route }: any) => ({
+                headerShown: false,
+                title: 'Course Plan',
+              })}
+            />
+          </MainStack.Group>
+
+          <MainStack.Group
+            screenOptions={{
               headerShown: true,
-              title: 'Account Settings',
+              headerStyle: {
+                backgroundColor: Colors.white,
+                elevation: 2,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 3,
+              },
             }}
-          />
+          >
+            <MainStack.Screen
+              name="AccountSettings"
+              component={AccountSettingsScreen}
+              options={{
+                title: 'Account Settings',
+              }}
+            />
 
-          <MainStack.Screen
-            name="Webinars"
-            component={WebinarsScreen}
-            options={{
-              headerShown: true,
-              title: 'Webinars',
-            }}
-          />
+            <MainStack.Screen
+              name="Webinars"
+              component={WebinarsScreen}
+              options={{
+                title: 'Webinars',
+              }}
+            />
 
-          <MainStack.Screen
-            name="Notifications"
-            component={NotificationsScreen}
-            options={{
-              headerShown: true,
-              title: 'Notifications',
-            }}
-          />
+            <MainStack.Screen
+              name="Notifications"
+              component={NotificationsScreen}
+              options={{
+                title: 'Notifications',
+              }}
+            />
 
-          <MainStack.Screen
-            name="Blogs"
-            component={BlogsScreen}
-            options={{
-              headerShown: true,
-              title: 'Blogs',
-            }}
-          />
+            <MainStack.Screen
+              name="Blogs"
+              component={BlogsScreen}
+              options={{
+                title: 'Blogs',
+              }}
+            />
 
-          <MainStack.Screen
-            name="VisitWebsite"
-            component={VisitWebsiteScreen}
-            options={{
-              headerShown: true,
-              title: 'Visit Website',
-            }}
-          />
+            <MainStack.Screen
+              name="VisitWebsite"
+              component={VisitWebsiteScreen}
+              options={{
+                title: 'Visit Website',
+              }}
+            />
 
-          <MainStack.Screen
-            name="Certificates"
-            component={CertificatesScreen}
-            options={{
-              headerShown: true,
-              title: 'Certificates',
-            }}
-          />
+            <MainStack.Screen
+              name="Certificates"
+              component={CertificatesScreen}
+              options={{
+                title: 'Certificates',
+              }}
+            />
 
-          <MainStack.Screen
-            name="AppSettings"
-            component={AppSettingsScreen}
-            options={{
-              headerShown: true,
-              title: 'App Settings',
-            }}
-          />
+            <MainStack.Screen
+              name="AppSettings"
+              component={AppSettingsScreen}
+              options={{
+                title: 'App Settings',
+              }}
+            />
 
-          <MainStack.Screen
-            name="HelpSupport"
-            component={HelpSupportScreen}
-            options={{
-              headerShown: true,
-              title: 'Help & Support',
-            }}
-          />
+            <MainStack.Screen
+              name="HelpSupport"
+              component={HelpSupportScreen}
+              options={{
+                title: 'Help & Support',
+              }}
+            />
 
-          <MainStack.Screen
-            name="PrivacyPolicy"
-            component={PrivacyPolicyScreen}
-            options={{
-              headerShown: true,
-              title: 'Privacy Policy',
-            }}
-          />
+            <MainStack.Screen
+              name="PrivacyPolicy"
+              component={PrivacyPolicyScreen}
+              options={{
+                title: 'Privacy Policy',
+              }}
+            />
+          </MainStack.Group>
 
-          {/* OTHER SCREENS */}
-          <MainStack.Screen
-            name="ReferEarnScreen"
-            component={ReferEarnScreen}
-            options={{
-              headerShown: false,
-              title: 'Refer & Earn',
-            }}
-          />
-          
-          <MainStack.Screen
-            name="WebinarEnrollScreen"
-            component={WebinarEnrollScreen}
-            options={{
-              headerShown: false,
-              title: 'Enroll Webinar',
-            }}
-          />
-          
-          <MainStack.Screen
-            name="BlogViewScreen"
-            component={BlogViewScreen}
-            options={{
-              headerShown: false,
-              title: 'Blog Article',
-            }}
-          />
-          
-          {/* AUTH SCREENS */}
-          <MainStack.Screen 
-            name="Login" 
-            component={LoginScreen}
-            options={{
-              headerShown: false,
-              title: 'Login',
-            }}
-          />
-          
-          <MainStack.Screen 
-            name="Signup" 
-            component={SignupScreen}
-            options={{
-              headerShown: false,
-              title: 'Sign Up',
-            }}
-          />
+          <MainStack.Group>
+            <MainStack.Screen
+              name="ReferEarnScreen"
+              component={ReferEarnScreen}
+              options={{
+                headerShown: true,
+                title: 'Refer & Earn',
+              }}
+            />
+            
+            <MainStack.Screen
+              name="WebinarEnrollScreen"
+              component={WebinarEnrollScreen}
+              options={{
+                headerShown: false,
+                title: 'Enroll Webinar',
+              }}
+            />
+            
+            <MainStack.Screen
+              name="BlogViewScreen"
+              component={BlogViewScreen}
+              options={{
+                headerShown: false,
+                title: 'Blog Article',
+              }}
+            />
+          </MainStack.Group>
         </MainStack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
@@ -577,6 +948,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 3,
     elevation: 3,
+    zIndex: 100,
   },
   header: {
     height: 56,
@@ -587,6 +959,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    backgroundColor: Colors.white,
   },
   logo: {
     width: 100,
@@ -607,15 +980,88 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     backgroundColor: Colors.primary,
     borderRadius: 8,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   signupButtonText: {
     fontSize: 15,
     fontWeight: '600',
     color: Colors.white,
   },
+  userContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    maxWidth: 150,
+  },
   welcomeText: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '500',
     color: Colors.black,
+  },
+  logoutButton: {
+    padding: 6,
+    borderRadius: 20,
+    backgroundColor: Colors.lightGray + '20',
+  },
+  
+  // Custom Tab Bar Styles
+  tabBarContainer: {
+    backgroundColor: Colors.white,
+    borderTopWidth: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 16,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    overflow: 'hidden',
+  },
+  tabBarContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingTop: 8,
+  },
+  tabButton: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 4,
+  },
+  tabButtonBackground: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 16,
+    minWidth: 60,
+    alignItems: 'center',
+  },
+  tabIconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  activeIndicator: {
+    position: 'absolute',
+    top: -4,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: Colors.primary,
+  },
+  tabIcon: {
+    marginBottom: 2,
+  },
+  tabLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  tabLabelActive: {
+    fontWeight: '700',
   },
 });

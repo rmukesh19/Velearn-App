@@ -11,7 +11,7 @@ import {
   Alert,
   StatusBar,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../types/navigation';
@@ -21,7 +21,7 @@ import { Colors } from '../../theme/colors';
 type WebinarEnrollScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'WebinarEnrollScreen'>;
 type WebinarEnrollRouteProp = RouteProp<RootStackParamList, 'WebinarEnrollScreen'>;
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 interface WebinarDetails {
   id: string;
@@ -49,6 +49,7 @@ interface WebinarDetails {
 export default function WebinarEnrollScreen() {
   const navigation = useNavigation<WebinarEnrollScreenNavigationProp>();
   const route = useRoute<WebinarEnrollRouteProp>();
+  const insets = useSafeAreaInsets();
   const { webinarId } = route.params || {};
   
   const [isEnrolled, setIsEnrolled] = useState(false);
@@ -95,7 +96,6 @@ export default function WebinarEnrollScreen() {
 
   const handleEnroll = () => {
     if (isEnrolled) {
-      // Navigate to webinar live screen
       Alert.alert(
         'Join Webinar',
         'The webinar will start at the scheduled time.',
@@ -129,6 +129,9 @@ export default function WebinarEnrollScreen() {
 
   const attendeesPercentage = (webinar.attendeesCount / webinar.maxAttendees) * 100;
 
+  // Calculate bottom button container height including safe area
+  const bottomButtonHeight = 68 + Math.max(insets.bottom, 0);
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <StatusBar 
@@ -156,7 +159,10 @@ export default function WebinarEnrollScreen() {
 
       <ScrollView 
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: bottomButtonHeight + 20 }
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {/* Webinar Image */}
@@ -272,43 +278,45 @@ export default function WebinarEnrollScreen() {
             ))}
           </View>
         </View>
-        
-        {/* Spacer for bottom buttons */}
-        <View style={styles.bottomSpacer} />
       </ScrollView>
 
       {/* Fixed Bottom Buttons Container */}
-      <View style={styles.bottomButtonsContainer}>
+      <View style={[
+        styles.bottomButtonsContainer,
+        { paddingBottom: Math.max(insets.bottom, 12) }
+      ]}>
         <View style={styles.buttonsRow}>
           {/* Previous Webinar Button */}
           <TouchableOpacity 
             style={styles.previousButton}
             onPress={handlePreviousWebinar}
+            activeOpacity={0.7}
           >
             <Icon name="play-back-outline" size={20} color={Colors.primary} />
             <Text style={styles.previousButtonText}>Previous</Text>
           </TouchableOpacity>
 
-        {/* Enroll Button */}
-<TouchableOpacity 
-  style={[
-    styles.enrollButton,
-    isEnrolled && styles.enrolledButton
-  ]}
-  onPress={handleEnroll}
->
-  {isEnrolled ? (
-    <>
-      <Icon name="videocam" size={20} color={Colors.white} />
-      <Text style={styles.enrollButtonText}>Join Webinar</Text>
-    </>
-  ) : (
-    <>
-      <Icon name="person-add" size={20} color={Colors.white} />
-      <Text style={styles.enrollButtonText}>Enroll Now</Text>
-    </>
-  )}
-</TouchableOpacity>
+          {/* Enroll Button */}
+          <TouchableOpacity 
+            style={[
+              styles.enrollButton,
+              isEnrolled && styles.enrolledButton
+            ]}
+            onPress={handleEnroll}
+            activeOpacity={0.7}
+          >
+            {isEnrolled ? (
+              <>
+                <Icon name="videocam" size={20} color={Colors.white} />
+                <Text style={styles.enrollButtonText}>Join Webinar</Text>
+              </>
+            ) : (
+              <>
+                <Icon name="person-add" size={20} color={Colors.white} />
+                <Text style={styles.enrollButtonText}>Enroll Now</Text>
+              </>
+            )}
+          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>
@@ -346,7 +354,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 100, // Space for bottom buttons
+    flexGrow: 1,
   },
   imageContainer: {
     height: 220,
@@ -391,7 +399,7 @@ const styles = StyleSheet.create({
     lineHeight: 28,
   },
   levelBadge: {
-    backgroundColor: Colors.lightSecondary,
+    backgroundColor: Colors.secondary,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
@@ -471,7 +479,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 14,
-    color: Colors.darkGray,
+    color: Colors.gray,
     lineHeight: 20,
   },
   speakerSection: {
@@ -525,7 +533,7 @@ const styles = StyleSheet.create({
   agendaText: {
     flex: 1,
     fontSize: 14,
-    color: Colors.darkGray,
+    color: Colors.gray,
     lineHeight: 20,
   },
   requirementItem: {
@@ -535,7 +543,7 @@ const styles = StyleSheet.create({
   },
   requirementText: {
     fontSize: 14,
-    color: Colors.darkGray,
+    color: Colors.gray,
     marginLeft: 8,
     lineHeight: 20,
   },
@@ -546,18 +554,15 @@ const styles = StyleSheet.create({
   },
   benefitText: {
     fontSize: 14,
-    color: Colors.darkGray,
+    color: Colors.gray,
     marginLeft: 10,
     flex: 1,
     lineHeight: 20,
   },
-  bottomSpacer: {
-    height: 20,
-  },
   bottomButtonsContainer: {
     backgroundColor: Colors.white,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingTop: 12,
     borderTopWidth: 1,
     borderTopColor: Colors.lightGray,
     shadowColor: '#000',
@@ -591,25 +596,22 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   enrollButton: {
-  backgroundColor: Colors.primary,
-  borderRadius: 12,
-  paddingVertical: 16,
-  alignItems: 'center',
-  justifyContent: 'center',
-  flex: 2,
-  flexDirection: 'row',
-  gap: 8, // Add this for spacing between icon and text
-},
-enrolledButton: {
-  backgroundColor: Colors.success,
-},
-enrollButtonText: {
-  color: Colors.white,
-  fontSize: 16,
-  fontWeight: '700',
-  lineHeight: 24,
-},
-  enrollIcon: {
-    marginRight: 8,
+    backgroundColor: Colors.primary,
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 2,
+    flexDirection: 'row',
+    gap: 8,
+  },
+  enrolledButton: {
+    backgroundColor: Colors.success,
+  },
+  enrollButtonText: {
+    color: Colors.white,
+    fontSize: 16,
+    fontWeight: '700',
+    lineHeight: 24,
   },
 });
